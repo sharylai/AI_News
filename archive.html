@@ -61,6 +61,15 @@
       <!-- 該日無內容 -->
       <div x-show="items.length === 0" class="state-box">本日無內容</div>
 
+      <!-- AI新視野（置頂） -->
+      <section x-show="sharyVoice" style="margin-bottom:3rem">
+        <div class="shary-block">
+          <span class="label">AI 新視野</span>
+          <p x-text="sharyVoice"></p>
+          <footer>— Shary｜影音創客創辦人</footer>
+        </div>
+      </section>
+
       <!-- Top 3 -->
       <section x-show="topThree.length > 0" style="margin-bottom:3rem">
         <div class="section-title">
@@ -69,11 +78,7 @@
         <div class="hero-grid">
           <template x-for="item in topThree" :key="item.id">
             <article class="news-card">
-              <div class="news-card-banner">
-                <span class="cred" x-text="item.credibility"></span>
-                <span class="score" x-text="'★ ' + item.score.toFixed(1)"></span>
-                <span class="emoji" x-text="categoryEmoji(item.category)"></span>
-              </div>
+              <span class="score-badge" x-text="'★ ' + item.score.toFixed(1)"></span>
               <div class="news-card-body">
                 <div class="date-stamp">
                   <span class="day" x-text="ds(item.date).day"></span>
@@ -122,15 +127,6 @@
               </div>
             </article>
           </template>
-        </div>
-      </section>
-
-      <!-- Shary 觀點 -->
-      <section x-show="sharyVoice">
-        <div class="shary-block">
-          <span class="label">Shary 觀點</span>
-          <p x-text="sharyVoice"></p>
-          <footer>— Shary｜影音創客創辦人</footer>
         </div>
       </section>
 

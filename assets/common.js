@@ -98,17 +98,8 @@ function formatTime(isoStr) {
  * activeKey: 'today' | 'archive' | 'search'
  */
 function renderHeader(activeKey) {
-  const p = window.AI_NEWS_CONFIG.PARENT_SITE;
   return `
-    <div class="brand-topbar">
-      <nav>
-        <a href="${p.home}">Home</a>
-        <a href="${p.courses}">最新課程</a>
-        <a href="${p.consulting}">顧問教練</a>
-        <a href="${p.news}">最新消息</a>
-        <a href="${p.column}">專欄文</a>
-      </nav>
-    </div>
+    <div class="brand-topbar"></div>
     <div class="brand-header">
       <div class="brand-header-inner">
         <a href="index.html" class="brand-logo">
@@ -129,7 +120,7 @@ function renderHeader(activeKey) {
 function renderFooter() {
   return `
     <footer class="brand-footer">
-      <p>AI News｜由 Claude API 自動生成，每日 06:00 更新</p>
+      <p>AI News｜<a href="https://www.videomaker.cc" target="_blank" rel="noopener">影音創客</a>監製。Claude API 自動生成，每日 06:00 更新</p>
       <p style="margin-top:0.4rem">內容僅供參考，原文連結為準 · <a href="https://github.com/sharylai/AI_News" target="_blank">GitHub</a></p>
     </footer>
   `;

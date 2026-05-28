@@ -27,27 +27,11 @@ body {
 
 .prose-cn { line-height: 1.8; letter-spacing: 0.02em; }
 
-/* ===== 頂部黃色 Nav Bar ===== */
+/* ===== 頂部黃色裝飾條（細條，無文字） ===== */
 .brand-topbar {
   background: var(--brand-yellow);
-  padding: 0.6rem 0;
+  height: 8px;
 }
-.brand-topbar nav {
-  max-width: 80rem;
-  margin: 0 auto;
-  padding: 0 1rem;
-  display: flex;
-  justify-content: flex-end;
-  gap: 1.75rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-.brand-topbar a {
-  color: var(--ink);
-  text-decoration: none;
-  transition: opacity 0.2s;
-}
-.brand-topbar a:hover { opacity: 0.65; }
 
 /* ===== Logo Block ===== */
 .brand-header {
@@ -213,6 +197,7 @@ body {
   transition: all 0.25s;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 .news-card:hover {
   transform: translateY(-2px);
@@ -220,40 +205,18 @@ body {
   border-color: var(--brand-yellow);
 }
 
-.news-card-banner {
-  background: linear-gradient(135deg, var(--brand-yellow-light), var(--brand-yellow));
-  height: 140px;
-  display: grid;
-  place-items: center;
-  position: relative;
-  border-bottom: 4px solid var(--brand-yellow-dark);
-}
-.news-card-banner .emoji {
-  font-size: 4rem;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-}
-.news-card-banner .score {
+/* 右上角的 ★ 評分 badge */
+.score-badge {
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
+  top: 0.85rem;
+  right: 0.85rem;
   background: var(--ink);
   color: var(--brand-yellow);
-  padding: 0.25rem 0.6rem;
+  padding: 0.3rem 0.7rem;
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 800;
-}
-.news-card-banner .cred {
-  position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-  background: rgba(255,255,255,0.85);
-  color: var(--ink);
-  padding: 0.2rem 0.55rem;
-  border-radius: 0.3rem;
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
+  z-index: 1;
 }
 
 .news-card-body {
@@ -360,8 +323,8 @@ body {
 @media (min-width: 1024px) {
   .hero-grid { grid-template-columns: 2fr 1fr 1fr; gap: 1.5rem; }
 }
-.hero-grid > :first-child .news-card-banner { height: 200px; }
-.hero-grid > :first-child .news-card-banner .emoji { font-size: 5.5rem; }
+.hero-grid > :first-child .news-card-title { font-size: 1.35rem; }
+.hero-grid > :first-child { background: linear-gradient(180deg, #FFFBEB 0%, var(--paper) 80px); }
 
 /* ===== Shary 觀點 ===== */
 .shary-block {
