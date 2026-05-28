@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>搜尋｜AI News</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="assets/common.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
+
+  <style>
+    [x-cloak] { display: none !important; }
+    body { font-family: -apple-system, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; }
+    .prose-cn { line-height: 1.8; letter-spacing: 0.02em; }
+    mark { background-color: #fef08a; padding: 0 2px; border-radius: 2px; }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+
+  <div x-data="searchApp()" x-init="init()" x-cloak class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+
+    <!-- Header -->
+    <header class="border-b border-slate-200 pb-6 mb-6">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">
+          搜尋
+          <span class="block text-sm font-normal text-slate-500 mt-1">在所有歷史內容中查找工具、案例與關鍵字</span>
+        </h1>
+        <nav class="flex gap-3 text-sm">
+          <a href="index.html" class="text-slate-600 hover:text-slate-900">今日</a>
+          <a href="archive.html" class="text-slate-600 hover:text-slate-900">歷史</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Loading -->
+    <div x-show="loading" class="py-20 text-center text-slate-400">
+      <div class="inline-block w-6 h-6 border-2 border-slate-300 border-t-slate-700 rounded-full animate-spin"></div>
+      <p class="mt-3 text-sm">索引建立中⋯⋯</p>
+    </div>
+
+    <!-- Error -->
+    <div x-show="error" class="py-12 px-6 bg-red-50 border border-red-200 rounded-lg">
+      <h2 class="font-semibold text-red-800">資料載入失敗</h2>
+      <p class="mt-2 text-sm text-red-700" x-text="error"></p>
+    </div>
+
+    <main x-show="!loading && !error" class="space-y-6">
+
+      <!-- 搜尋框 -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 sticky top-2 z-10 shadow-sm">
+        <input type="search" x-model="query" @input="runSearch()"
+               placeholder="搜尋工具名稱、關鍵字（如：Runway、虛擬人、合規）"
+               class="w-full px-4 py-3 text-base rounded border border-slate-300 focus:border-slate-500 focus:outline-none" />
+
+        <!-- 分類過濾 -->
+        <div class="mt-3 flex items-center gap-2 flex-wrap">
+          <span class="text-xs text-slate-500 mr-1">分類：</span>
+          <template x-for="cat in ['全部','工具','案例','教學','情報']" :key="cat">
+            <button @click="selectedCategory = cat; runSearch()"
+                    :class="selectedCategory === cat ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+                    class="px-3 py-1 text-xs rounded-full transition" x-text="cat"></button>
+          </template>
+        </div>
+
+        <!-- 可信度過濾 -->
+        <div class="mt-2 flex items-center gap-2 flex-wrap">
+          <span class="text-xs text-slate-500 mr-1">可信度：</span>
+          <template x-for="cred in ['全部','A','B','C','D']" :key="cred">
+            <button @click="selectedCred = cred; runSearch()"
+                    :class="selectedCred === cred ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
+                    class="px-3 py-1 text-xs rounded-full transition" x-text="cred"></button>
+          </template>
+        </div>
+
+        <!-- 熱門標籤 -->
+        <div class="mt-2 flex items-center gap-2 flex-wrap" x-show="topTags.length > 0">
+          <span class="text-xs text-slate-500 mr-1">熱門標籤：</span>
+          <template x-for="tag in topTags" :key="tag">
+            <button @click="toggleTag(tag)"
+                    :class="activeTags.includes(tag) ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-700 hover:bg-blue-100'"
+                    class="px-2.5 py-0.5 text-xs rounded transition" x-text="'#' + tag"></button>
+          </template>
+        </div>
+
+        <!-- 統計 + 重置 -->
+        <div class="mt-3 flex items-center justify-between text-xs text-slate-500">
+          <span>找到 <span x-text="results.length" class="font-semibold text-slate-900"></span> 筆 / 共 <span x-text="allItems.length"></span> 筆</span>
+          <button x-show="hasFilter" @click="resetFilters()" class="text-blue-600 hover:underline">清除所有條件</button>
+        </div>
+      </div>
+
+      <!-- 結果列表 -->
+      <div x-show="results.length === 0" class="py-12 text-center text-slate-400 text-sm">
+        <p class="text-4xl mb-2">🔍</p>
+        <span x-show="query || hasFilter">沒有符合條件的結果</span>
+        <span x-show="!query && !hasFilter">輸入關鍵字或選擇標籤開始搜尋</span>
+      </div>
+
+      <ul class="space-y-3" x-show="results.length > 0">
+        <template x-for="item in results.slice(0, 50)" :key="item.id">
+          <li class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 hover:shadow-md transition">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                  <span class="text-xs font-medium px-2 py-0.5 rounded"
+                        :class="categoryClass(item.category)" x-text="item.category"></span>
+                  <span class="text-xs text-slate-400" x-text="item.date"></span>
+                  <span class="text-xs text-slate-400" x-text="'[' + item.credibility + ']'"></span>
+                  <span class="text-xs text-amber-600 font-semibold" x-text="'★' + (item.score || 0).toFixed(1)"></span>
+                </div>
+                <h3 class="font-bold text-base leading-snug" x-html="highlight(item.title)"></h3>
+                <p class="mt-2 text-sm text-slate-600 prose-cn" x-html="highlight(item.one_line || '')"></p>
+              </div>
+            </div>
+            <div class="mt-3 flex items-center justify-between text-xs">
+              <div class="flex flex-wrap gap-1">
+                <template x-for="tag in itemTags(item)" :key="tag">
+                  <button @click="toggleTag(tag)" class="px-2 py-0.5 bg-slate-100 hover:bg-blue-100 rounded text-slate-600" x-text="'#' + tag"></button>
+                </template>
+              </div>
+              <a :href="item.source_url" target="_blank" rel="noopener" class="text-blue-600 hover:underline shrink-0 ml-2">原文 →</a>
+            </div>
+          </li>
+        </template>
+      </ul>
+
+      <p x-show="results.length > 50" class="text-center text-xs text-slate-400">
+        僅顯示前 50 筆，請縮小範圍以查看更多結果
+      </p>
+
+    </main>
+
+    <footer class="mt-16 pt-6 border-t border-slate-200 text-xs text-slate-400 text-center">
+      <p>AI News｜內容檢索</p>
+    </footer>
+
+  </div>
+
+  <script>
+    function searchApp() {
+      return {
+        loading: true,
+        error: null,
+        allItems: [],
+        fuse: null,
+        query: '',
+        selectedCategory: '全部',
+        selectedCred: '全部',
+        activeTags: [],
+        topTags: [],
+        results: [],
+        categoryClass,
+
+        get hasFilter() {
+          return this.query || this.selectedCategory !== '全部' ||
+                 this.selectedCred !== '全部' || this.activeTags.length > 0;
+        },
+
+        async init() {
+          this.loading = true;
+          try {
+            const news = await fetchSheet(AI_NEWS_CONFIG.SHEETS.NEWS);
+            this.allItems = news.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+            this.fuse = new Fuse(this.allItems, {
+              keys: [
+                { name: 'title', weight: 3 },
+                { name: 'tags', weight: 2 },
+                { name: 'company', weight: 2 },
+                { name: 'one_line', weight: 1.5 },
+                { name: 'key_takeaway', weight: 1 },
+                { name: 'audience', weight: 0.5 }
+              ],
+              threshold: 0.4,
+              ignoreLocation: true,
+              includeScore: true
+            });
+
+            this.computeTopTags();
+            this.parseUrlParams();
+            this.runSearch();
+          } catch (err) {
+            console.error(err);
+            this.error = err.message || '未知錯誤';
+          } finally {
+            this.loading = false;
+          }
+        },
+
+        computeTopTags() {
+          const counts = {};
+          this.allItems.forEach(item => {
+            (item.tags || '').split(',').map(t => t.trim()).filter(Boolean).forEach(tag => {
+              counts[tag] = (counts[tag] || 0) + 1;
+            });
+          });
+          this.topTags = Object.entries(counts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 12)
+            .map(([tag]) => tag);
+        },
+
+        parseUrlParams() {
+          const params = new URLSearchParams(location.search);
+          if (params.has('q')) this.query = params.get('q');
+          if (params.has('cat')) this.selectedCategory = params.get('cat');
+          if (params.has('tag')) this.activeTags = params.get('tag').split(',').filter(Boolean);
+        },
+
+        updateUrl() {
+          const params = new URLSearchParams();
+          if (this.query) params.set('q', this.query);
+          if (this.selectedCategory !== '全部') params.set('cat', this.selectedCategory);
+          if (this.activeTags.length > 0) params.set('tag', this.activeTags.join(','));
+          const qs = params.toString();
+          history.replaceState(null, '', qs ? '?' + qs : location.pathname);
+        },
+
+        runSearch() {
+          let pool = this.allItems;
+
+          // 1. 文字搜尋
+          if (this.query.trim()) {
+            const fuseResults = this.fuse.search(this.query.trim());
+            pool = fuseResults.map(r => r.item);
+          }
+
+          // 2. 分類過濾
+          if (this.selectedCategory !== '全部') {
+            pool = pool.filter(i => i.category === this.selectedCategory);
+          }
+
+          // 3. 可信度過濾
+          if (this.selectedCred !== '全部') {
+            pool = pool.filter(i => i.credibility === this.selectedCred);
+          }
+
+          // 4. 標籤過濾（必須全包含）
+          if (this.activeTags.length > 0) {
+            pool = pool.filter(i => {
+              const tags = (i.tags || '').split(',').map(t => t.trim());
+              return this.activeTags.every(t => tags.includes(t));
+            });
+          }
+
+          this.results = pool;
+          this.updateUrl();
+        },
+
+        toggleTag(tag) {
+          if (this.activeTags.includes(tag)) {
+            this.activeTags = this.activeTags.filter(t => t !== tag);
+          } else {
+            this.activeTags.push(tag);
+          }
+          this.runSearch();
+        },
+
+        resetFilters() {
+          this.query = '';
+          this.selectedCategory = '全部';
+          this.selectedCred = '全部';
+          this.activeTags = [];
+          this.runSearch();
+        },
+
+        itemTags(item) {
+          return (item.tags || '').split(',').map(t => t.trim()).filter(Boolean).slice(0, 5);
+        },
+
+        highlight(text) {
+          if (!text) return '';
+          const safe = String(text).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+          if (!this.query.trim()) return safe;
+          // 簡單的關鍵字 highlight（拆字並逐個 highlight）
+          const terms = this.query.trim().split(/\s+/).filter(t => t.length > 0);
+          let result = safe;
+          terms.forEach(t => {
+            const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            result = result.replace(new RegExp(escaped, 'gi'), m => `<mark>${m}</mark>`);
+          });
+          return result;
+        }
+      };
+    }
+  </script>
+</body>
+</html>

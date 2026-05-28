@@ -1,0 +1,16 @@
+# 本機開發用
+.claude/
+.DS_Store
+*.log
+
+# Node / build artifacts (未來若加 build flow)
+node_modules/
+dist/
+.env
+.env.local
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~

@@ -1,0 +1,6 @@
+run_at,status,fetched,accepted,published,error,cost_usd
+2026-05-28T06:12:50Z,success,142,11,8,,1.83
+2026-05-27T06:11:22Z,success,128,9,7,,1.71
+2026-05-26T06:13:05Z,partial,156,12,9,Tavily API rate limit (retry succeeded),1.92
+2026-05-25T06:10:48Z,success,118,8,6,,1.65
+2026-05-24T06:14:11Z,success,135,10,8,,1.78
