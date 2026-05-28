@@ -5,140 +5,133 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>搜尋｜AI News</title>
 
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/style.css">
   <script src="assets/common.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
   <script defer src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
-
-  <style>
-    [x-cloak] { display: none !important; }
-    body { font-family: -apple-system, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; }
-    .prose-cn { line-height: 1.8; letter-spacing: 0.02em; }
-    mark { background-color: #fef08a; padding: 0 2px; border-radius: 2px; }
-  </style>
 </head>
 
-<body class="bg-slate-50 text-slate-900 min-h-screen">
+<body>
 
-  <div x-data="searchApp()" x-init="init()" x-cloak class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <script>document.write(renderHeader('search'));</script>
 
-    <!-- Header -->
-    <header class="border-b border-slate-200 pb-6 mb-6">
-      <div class="flex items-center justify-between flex-wrap gap-2">
-        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">
-          搜尋
-          <span class="block text-sm font-normal text-slate-500 mt-1">在所有歷史內容中查找工具、案例與關鍵字</span>
-        </h1>
-        <nav class="flex gap-3 text-sm">
-          <a href="index.html" class="text-slate-600 hover:text-slate-900">今日</a>
-          <a href="archive.html" class="text-slate-600 hover:text-slate-900">歷史</a>
-        </nav>
-      </div>
-    </header>
+  <div x-data="searchApp()" x-init="init()" x-cloak class="container">
 
-    <!-- Loading -->
-    <div x-show="loading" class="py-20 text-center text-slate-400">
-      <div class="inline-block w-6 h-6 border-2 border-slate-300 border-t-slate-700 rounded-full animate-spin"></div>
-      <p class="mt-3 text-sm">索引建立中⋯⋯</p>
+    <div style="margin-bottom:2rem">
+      <h1 style="margin:0;font-size:2rem;font-weight:900;letter-spacing:-0.02em">搜尋 AI 影音情報</h1>
+      <p style="margin:0.35rem 0 0;color:var(--ink-soft);font-size:0.9rem">在所有歷史內容中查找工具、案例與關鍵字</p>
     </div>
 
-    <!-- Error -->
-    <div x-show="error" class="py-12 px-6 bg-red-50 border border-red-200 rounded-lg">
-      <h2 class="font-semibold text-red-800">資料載入失敗</h2>
-      <p class="mt-2 text-sm text-red-700" x-text="error"></p>
+    <div x-show="loading" class="state-box">
+      <div class="spinner"></div>
+      <p style="margin-top:0.85rem;font-size:0.875rem">索引建立中⋯⋯</p>
     </div>
 
-    <main x-show="!loading && !error" class="space-y-6">
+    <div x-show="error" class="error-box">
+      <p style="margin:0" x-text="error"></p>
+    </div>
 
-      <!-- 搜尋框 -->
-      <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 sticky top-2 z-10 shadow-sm">
-        <input type="search" x-model="query" @input="runSearch()"
-               placeholder="搜尋工具名稱、關鍵字（如：Runway、虛擬人、合規）"
-               class="w-full px-4 py-3 text-base rounded border border-slate-300 focus:border-slate-500 focus:outline-none" />
+    <main x-show="!loading && !error">
 
-        <!-- 分類過濾 -->
-        <div class="mt-3 flex items-center gap-2 flex-wrap">
-          <span class="text-xs text-slate-500 mr-1">分類：</span>
+      <!-- 搜尋區塊 -->
+      <div style="background:var(--paper);border:1px solid var(--line);border-radius:0.75rem;padding:1.25rem;margin-bottom:1.5rem;position:sticky;top:0.5rem;z-index:5;box-shadow:0 4px 16px rgba(0,0,0,0.04)">
+
+        <!-- 搜尋列 -->
+        <div class="search-pill">
+          <input type="search" x-model="query" @input="runSearch()"
+                 placeholder="搜尋工具名稱、關鍵字（如：Runway、虛擬人、合規）" />
+          <button class="search-pill-btn" aria-label="搜尋">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2.5">
+              <circle cx="11" cy="11" r="7"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- 分類 -->
+        <div class="filter-row">
+          <span class="label">分類：</span>
           <template x-for="cat in ['全部','工具','案例','教學','情報']" :key="cat">
-            <button @click="selectedCategory = cat; runSearch()"
-                    :class="selectedCategory === cat ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
-                    class="px-3 py-1 text-xs rounded-full transition" x-text="cat"></button>
+            <button class="filter-chip" :class="selectedCategory === cat ? 'active' : ''"
+                    @click="selectedCategory = cat; runSearch()" x-text="cat"></button>
           </template>
         </div>
 
-        <!-- 可信度過濾 -->
-        <div class="mt-2 flex items-center gap-2 flex-wrap">
-          <span class="text-xs text-slate-500 mr-1">可信度：</span>
+        <!-- 可信度 -->
+        <div class="filter-row">
+          <span class="label">可信度：</span>
           <template x-for="cred in ['全部','A','B','C','D']" :key="cred">
-            <button @click="selectedCred = cred; runSearch()"
-                    :class="selectedCred === cred ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
-                    class="px-3 py-1 text-xs rounded-full transition" x-text="cred"></button>
+            <button class="filter-chip" :class="selectedCred === cred ? 'active' : ''"
+                    @click="selectedCred = cred; runSearch()" x-text="cred"></button>
           </template>
         </div>
 
         <!-- 熱門標籤 -->
-        <div class="mt-2 flex items-center gap-2 flex-wrap" x-show="topTags.length > 0">
-          <span class="text-xs text-slate-500 mr-1">熱門標籤：</span>
+        <div class="filter-row" x-show="topTags.length > 0">
+          <span class="label">熱門標籤：</span>
           <template x-for="tag in topTags" :key="tag">
-            <button @click="toggleTag(tag)"
-                    :class="activeTags.includes(tag) ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-700 hover:bg-blue-100'"
-                    class="px-2.5 py-0.5 text-xs rounded transition" x-text="'#' + tag"></button>
+            <button class="filter-chip tag" :class="activeTags.includes(tag) ? 'active' : ''"
+                    @click="toggleTag(tag)" x-text="'#' + tag"></button>
           </template>
         </div>
 
         <!-- 統計 + 重置 -->
-        <div class="mt-3 flex items-center justify-between text-xs text-slate-500">
-          <span>找到 <span x-text="results.length" class="font-semibold text-slate-900"></span> 筆 / 共 <span x-text="allItems.length"></span> 筆</span>
-          <button x-show="hasFilter" @click="resetFilters()" class="text-blue-600 hover:underline">清除所有條件</button>
+        <div style="margin-top:0.75rem;display:flex;align-items:center;justify-content:space-between;font-size:0.8rem;color:var(--ink-soft)">
+          <span>找到 <strong style="color:var(--ink)" x-text="results.length"></strong> 筆 / 共 <span x-text="allItems.length"></span> 筆</span>
+          <button x-show="hasFilter" @click="resetFilters()"
+                  style="background:none;border:0;color:var(--brand-yellow-dark);cursor:pointer;font-weight:700">
+            清除所有條件
+          </button>
         </div>
       </div>
 
-      <!-- 結果列表 -->
-      <div x-show="results.length === 0" class="py-12 text-center text-slate-400 text-sm">
-        <p class="text-4xl mb-2">🔍</p>
+      <!-- Empty -->
+      <div x-show="results.length === 0" class="state-box">
+        <p class="emoji">🔍</p>
         <span x-show="query || hasFilter">沒有符合條件的結果</span>
         <span x-show="!query && !hasFilter">輸入關鍵字或選擇標籤開始搜尋</span>
       </div>
 
-      <ul class="space-y-3" x-show="results.length > 0">
+      <!-- 結果 -->
+      <div class="search-results" x-show="results.length > 0">
         <template x-for="item in results.slice(0, 50)" :key="item.id">
-          <li class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 hover:shadow-md transition">
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-                  <span class="text-xs font-medium px-2 py-0.5 rounded"
-                        :class="categoryClass(item.category)" x-text="item.category"></span>
-                  <span class="text-xs text-slate-400" x-text="item.date"></span>
-                  <span class="text-xs text-slate-400" x-text="'[' + item.credibility + ']'"></span>
-                  <span class="text-xs text-amber-600 font-semibold" x-text="'★' + (item.score || 0).toFixed(1)"></span>
+          <article class="news-card">
+            <div class="news-card-body">
+              <div class="date-stamp">
+                <span class="day" x-text="ds(item.date).day"></span>
+                <span class="month" x-text="ds(item.date).month"></span>
+              </div>
+              <div class="news-card-content">
+                <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;flex-wrap:wrap">
+                  <span class="news-card-category" :class="categoryClass(item.category)" style="margin:0" x-text="item.category"></span>
+                  <span style="font-size:0.7rem;color:var(--ink-soft)" x-text="item.date"></span>
+                  <span style="font-size:0.75rem;color:var(--brand-yellow-dark);font-weight:800" x-text="'★' + (item.score || 0).toFixed(1)"></span>
+                  <span style="font-size:0.7rem;color:var(--ink-soft)" x-text="'[' + item.credibility + ']'"></span>
                 </div>
-                <h3 class="font-bold text-base leading-snug" x-html="highlight(item.title)"></h3>
-                <p class="mt-2 text-sm text-slate-600 prose-cn" x-html="highlight(item.one_line || '')"></p>
+                <h3 class="news-card-title" style="font-size:1rem" x-html="highlight(item.title)"></h3>
+                <p class="news-card-desc" x-html="highlight(item.one_line || '')"></p>
               </div>
             </div>
-            <div class="mt-3 flex items-center justify-between text-xs">
-              <div class="flex flex-wrap gap-1">
+            <div class="news-card-actions">
+              <div class="news-card-tags">
                 <template x-for="tag in itemTags(item)" :key="tag">
-                  <button @click="toggleTag(tag)" class="px-2 py-0.5 bg-slate-100 hover:bg-blue-100 rounded text-slate-600" x-text="'#' + tag"></button>
+                  <span @click.prevent="toggleTag(tag)" style="cursor:pointer" x-text="'#' + tag"></span>
                 </template>
               </div>
-              <a :href="item.source_url" target="_blank" rel="noopener" class="text-blue-600 hover:underline shrink-0 ml-2">原文 →</a>
+              <a class="read-more" :href="item.source_url" target="_blank" rel="noopener">原文 →</a>
             </div>
-          </li>
+          </article>
         </template>
-      </ul>
+      </div>
 
-      <p x-show="results.length > 50" class="text-center text-xs text-slate-400">
+      <p x-show="results.length > 50" style="text-align:center;margin-top:1.5rem;font-size:0.8rem;color:var(--ink-soft)">
         僅顯示前 50 筆，請縮小範圍以查看更多結果
       </p>
 
     </main>
-
-    <footer class="mt-16 pt-6 border-t border-slate-200 text-xs text-slate-400 text-center">
-      <p>AI News｜內容檢索</p>
-    </footer>
-
   </div>
+
+  <script>document.write(renderFooter());</script>
 
   <script>
     function searchApp() {
@@ -154,6 +147,7 @@
         topTags: [],
         results: [],
         categoryClass,
+        ds: dateStampParts,
 
         get hasFilter() {
           return this.query || this.selectedCategory !== '全部' ||
@@ -165,21 +159,16 @@
           try {
             const news = await fetchSheet(AI_NEWS_CONFIG.SHEETS.NEWS);
             this.allItems = news.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-
             this.fuse = new Fuse(this.allItems, {
               keys: [
                 { name: 'title', weight: 3 },
                 { name: 'tags', weight: 2 },
                 { name: 'company', weight: 2 },
                 { name: 'one_line', weight: 1.5 },
-                { name: 'key_takeaway', weight: 1 },
-                { name: 'audience', weight: 0.5 }
+                { name: 'key_takeaway', weight: 1 }
               ],
-              threshold: 0.4,
-              ignoreLocation: true,
-              includeScore: true
+              threshold: 0.4, ignoreLocation: true, includeScore: true
             });
-
             this.computeTopTags();
             this.parseUrlParams();
             this.runSearch();
@@ -198,10 +187,7 @@
               counts[tag] = (counts[tag] || 0) + 1;
             });
           });
-          this.topTags = Object.entries(counts)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 12)
-            .map(([tag]) => tag);
+          this.topTags = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([t]) => t);
         },
 
         parseUrlParams() {
@@ -222,50 +208,30 @@
 
         runSearch() {
           let pool = this.allItems;
-
-          // 1. 文字搜尋
           if (this.query.trim()) {
-            const fuseResults = this.fuse.search(this.query.trim());
-            pool = fuseResults.map(r => r.item);
+            pool = this.fuse.search(this.query.trim()).map(r => r.item);
           }
-
-          // 2. 分類過濾
-          if (this.selectedCategory !== '全部') {
-            pool = pool.filter(i => i.category === this.selectedCategory);
-          }
-
-          // 3. 可信度過濾
-          if (this.selectedCred !== '全部') {
-            pool = pool.filter(i => i.credibility === this.selectedCred);
-          }
-
-          // 4. 標籤過濾（必須全包含）
+          if (this.selectedCategory !== '全部') pool = pool.filter(i => i.category === this.selectedCategory);
+          if (this.selectedCred !== '全部') pool = pool.filter(i => i.credibility === this.selectedCred);
           if (this.activeTags.length > 0) {
             pool = pool.filter(i => {
               const tags = (i.tags || '').split(',').map(t => t.trim());
               return this.activeTags.every(t => tags.includes(t));
             });
           }
-
           this.results = pool;
           this.updateUrl();
         },
 
         toggleTag(tag) {
-          if (this.activeTags.includes(tag)) {
-            this.activeTags = this.activeTags.filter(t => t !== tag);
-          } else {
-            this.activeTags.push(tag);
-          }
+          this.activeTags = this.activeTags.includes(tag)
+            ? this.activeTags.filter(t => t !== tag) : [...this.activeTags, tag];
           this.runSearch();
         },
 
         resetFilters() {
-          this.query = '';
-          this.selectedCategory = '全部';
-          this.selectedCred = '全部';
-          this.activeTags = [];
-          this.runSearch();
+          this.query = ''; this.selectedCategory = '全部'; this.selectedCred = '全部';
+          this.activeTags = []; this.runSearch();
         },
 
         itemTags(item) {
@@ -276,7 +242,6 @@
           if (!text) return '';
           const safe = String(text).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
           if (!this.query.trim()) return safe;
-          // 簡單的關鍵字 highlight（拆字並逐個 highlight）
           const terms = this.query.trim().split(/\s+/).filter(t => t.length > 0);
           let result = safe;
           terms.forEach(t => {

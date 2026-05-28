@@ -1,21 +1,17 @@
 /**
  * common.js — index / archive / search 三頁共用
- *
- * 對外提供：
- *   - AI_NEWS_CONFIG.SHEET_ID
- *   - fetchSheet(sheetName)        Promise<Array<Object>>
- *   - parseGviz(json)               GViz JSON → Array<Object>
- *   - categoryClass(category)       Tailwind classes for category badge
- *   - todayString()                 'YYYY-MM-DD' Asia/Taipei
- *   - displayDate(dateStr)          'YYYY/MM/DD 週X'
- *   - formatTime(isoStr)            'HH:MM'
  */
 
 window.AI_NEWS_CONFIG = {
   SHEET_ID: '1_EiUhQ-nSOtFaLzEiQcMu-eBFb9P0504VUsw_-5boI8',
-  SHEETS: {
-    NEWS: 'news',
-    SHARY: 'shary_voice'
+  SHEETS: { NEWS: 'news', SHARY: 'shary_voice' },
+  // 影音創客主站連結（修改為實際 URL）
+  PARENT_SITE: {
+    home: '#',
+    courses: '#',
+    consulting: '#',
+    news: '#',
+    column: '#'
   }
 };
 
@@ -51,11 +47,20 @@ function parseGviz(json) {
 
 function categoryClass(category) {
   return {
-    '工具': 'bg-blue-100 text-blue-800',
-    '案例': 'bg-purple-100 text-purple-800',
-    '教學': 'bg-amber-100 text-amber-800',
-    '情報': 'bg-emerald-100 text-emerald-800'
-  }[category] || 'bg-slate-100 text-slate-700';
+    '工具': 'cat-tool',
+    '案例': 'cat-case',
+    '教學': 'cat-teach',
+    '情報': 'cat-news'
+  }[category] || '';
+}
+
+function categoryEmoji(category) {
+  return {
+    '工具': '🛠️',
+    '案例': '🎬',
+    '教學': '💡',
+    '情報': '📡'
+  }[category] || '📰';
 }
 
 function todayString() {
@@ -70,9 +75,62 @@ function displayDate(dateStr) {
   return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${weekday}`;
 }
 
+function dateStampParts(dateStr) {
+  if (!dateStr) return { day: '', month: '' };
+  const d = new Date(dateStr + 'T00:00:00');
+  return {
+    day: String(d.getDate()),
+    month: `${d.getMonth()+1}月`
+  };
+}
+
 function formatTime(isoStr) {
   if (!isoStr) return '';
   try {
     return new Date(isoStr).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
   } catch (e) { return ''; }
+}
+
+/**
+ * 共用 Header HTML（黃色 nav + Logo + Sub-nav）
+ *
+ * 用法：在 <body> 開頭呼叫 document.write(renderHeader('today'))
+ * activeKey: 'today' | 'archive' | 'search'
+ */
+function renderHeader(activeKey) {
+  const p = window.AI_NEWS_CONFIG.PARENT_SITE;
+  return `
+    <div class="brand-topbar">
+      <nav>
+        <a href="${p.home}">Home</a>
+        <a href="${p.courses}">最新課程</a>
+        <a href="${p.consulting}">顧問教練</a>
+        <a href="${p.news}">最新消息</a>
+        <a href="${p.column}">專欄文</a>
+      </nav>
+    </div>
+    <div class="brand-header">
+      <div class="brand-header-inner">
+        <a href="index.html" class="brand-logo">
+          <span class="brand-logo-icon">N</span>
+          <span class="brand-logo-text">AI News</span>
+          <span class="brand-logo-badge">Video Maker</span>
+        </a>
+        <nav class="subnav">
+          <a href="index.html" class="${activeKey==='today'?'active':''}">今日</a>
+          <a href="archive.html" class="${activeKey==='archive'?'active':''}">歷史封存</a>
+          <a href="search.html" class="${activeKey==='search'?'active':''}">搜尋</a>
+        </nav>
+      </div>
+    </div>
+  `;
+}
+
+function renderFooter() {
+  return `
+    <footer class="brand-footer">
+      <p>AI News｜由 Claude API 自動生成，每日 06:00 更新</p>
+      <p style="margin-top:0.4rem">內容僅供參考，原文連結為準 · <a href="https://github.com/sharylai/AI_News" target="_blank">GitHub</a></p>
+    </footer>
+  `;
 }
