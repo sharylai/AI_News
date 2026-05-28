@@ -82,8 +82,21 @@ function runDailyPipeline() {
     writeToNewsSheet(ranked);
     writeToSharyVoiceSheet(sharyVoice);
 
+    // Step 8: 社群素材生成（IG/Threads/FB 文案 + AI 新視野 圖卡 → Drive）
+    let socialFolderUrl = '';
+    if (CONFIG.ENABLE_SOCIAL_PIPELINE) {
+      try {
+        socialFolderUrl = generateAndSaveSocialAssets(
+          getTodayString(), ranked, sharyVoice
+        ) || '';
+      } catch (e) {
+        console.warn('Social pipeline failed (non-fatal):', e.message);
+      }
+    }
+
     const elapsedSec = ((new Date() - startTime) / 1000).toFixed(1);
     console.log(`=== Pipeline DONE in ${elapsedSec}s ===`);
+    if (socialFolderUrl) console.log(`Social assets: ${socialFolderUrl}`);
 
     logPipeline({
       status: 'success',
@@ -167,6 +180,67 @@ function clearAllTriggers() {
   const triggers = ScriptApp.getProjectTriggers();
   triggers.forEach(t => ScriptApp.deleteTrigger(t));
   console.log(`Deleted ${triggers.length} triggers.`);
+}
+
+/**
+ * 手動測試 social 模組：讀今日 Sheet 資料 → 生成社群素材 → 存 Drive
+ * 不會跑完整 pipeline，方便調 Prompt 和圖卡視覺
+ */
+function testSocialOnly() {
+  const today = getTodayString();
+  console.log('Testing social pipeline for', today);
+
+  // 從 Sheet 讀今日資料
+  const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+  const newsSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.NEWS);
+  const sharySheet = ss.getSheetByName(CONFIG.SHEET_NAMES.SHARY);
+
+  const newsRows = newsSheet.getDataRange().getValues();
+  const headers = newsRows[0];
+  const idx = {};
+  NEWS_COLUMNS.forEach(c => { idx[c] = headers.indexOf(c); });
+
+  const items = [];
+  for (let i = 1; i < newsRows.length; i++) {
+    const r = newsRows[i];
+    const dateStr = r[idx.date] instanceof Date
+      ? Utilities.formatDate(r[idx.date], 'Asia/Taipei', 'yyyy-MM-dd')
+      : String(r[idx.date]).slice(0, 10);
+    if (dateStr === today) {
+      items.push({
+        category: r[idx.category],
+        title: r[idx.title],
+        score: r[idx.score],
+        credibility: r[idx.credibility],
+        one_line: r[idx.one_line],
+        key_takeaway: r[idx.key_takeaway],
+        actionable: r[idx.actionable],
+        audience: r[idx.audience],
+        tags: r[idx.tags],
+        source_url: r[idx.source_url],
+        is_top: r[idx.is_top] === true || r[idx.is_top] === 'TRUE'
+      });
+    }
+  }
+
+  // Shary voice
+  let sharyVoice = '';
+  const sharyRows = sharySheet.getDataRange().getValues();
+  for (let i = 1; i < sharyRows.length; i++) {
+    const d = sharyRows[i][0];
+    const dStr = d instanceof Date
+      ? Utilities.formatDate(d, 'Asia/Taipei', 'yyyy-MM-dd')
+      : String(d).slice(0, 10);
+    if (dStr === today) {
+      sharyVoice = sharyRows[i][1];
+      break;
+    }
+  }
+
+  console.log(`Found ${items.length} items, sharyVoice = ${sharyVoice ? sharyVoice.slice(0, 30) + '...' : '(empty)'}`);
+
+  const url = generateAndSaveSocialAssets(today, items, sharyVoice);
+  console.log('Drive folder:', url);
 }
 
 /**

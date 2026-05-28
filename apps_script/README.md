@@ -147,13 +147,55 @@ Enriched sample: { score: 3.x, ... }
 
 | 檔案 | 行數 | 責任 |
 |------|------|------|
-| `Config.gs` | ~100 | 所有常數、來源清單、Script Property 讀取 |
+| `Config.gs` | ~120 | 所有常數、來源清單、Script Property 讀取 |
 | `Fetchers.gs` | ~150 | RSS / Tavily / Reddit 三種來源抓取 |
 | `LLM.gs` | ~130 | Claude API 統一介面、JSON 解析、Embedding |
 | `Pipeline.gs` | ~220 | 去重、過濾、評分、排名、QC、多樣性 |
-| `Shary.gs` | ~80 | Opus 生成 Shary 觀點、字數/禁用詞自檢 |
+| `Shary.gs` | ~80 | Opus 生成 AI 新視野、字數/禁用詞自檢 |
 | `Sheets.gs` | ~150 | 寫入 news/shary/log 三個分頁、歷史讀取 |
-| `Main.gs` | ~150 | `runDailyPipeline`、觸發器設定、手動測試 |
+| `Social.gs` | ~230 | IG/Threads/FB 文案生成、Slides 1080×1080 圖卡、存 Drive |
+| `Main.gs` | ~220 | `runDailyPipeline`、觸發器設定、手動測試（含 `testSocialOnly`）|
+
+---
+
+## Step 8：社群素材生成設定（選用，但建議開啟）
+
+Pipeline Step 7 完成寫入 Sheet 後，自動會跑 Step 8 生成社群素材並存到 Google Drive：
+
+```
+我的雲端硬碟/AI News/YYYY-MM-DD/
+├── social-posts-YYYY-MM-DD.md   ← 5 則新聞的 IG/Threads/FB 三平台貼文文案
+└── ai-shinshi-ye-YYYY-MM-DD.png ← 1080×1080 AI 新視野 社群貼圖
+```
+
+### 8.1 啟用 Slides API（高級服務）
+1. Apps Script 編輯器左側「服務」(➕)
+2. 找「Google Slides API」→ 新增（識別碼用預設 `Slides`）
+
+### 8.2 上傳 Shary 頭像到 Drive（用於圖卡）
+1. 上傳 `assets/shary.jpg` 到任一 Drive 資料夾
+2. 右鍵 → 共用 → 取得連結 → 取得 file ID（網址中 `/d/` 後那段）
+3. Script Properties 新增 `SHARY_AVATAR_FILE_ID`，值為剛剛的 file ID
+
+### 8.3 關閉社群素材（如不想生成）
+在 `Config.gs` 改 `ENABLE_SOCIAL_PIPELINE: false`。
+
+### 8.4 Email 自動寄送
+生成完成後會自動寄送一封 HTML email 到 `CONFIG.SOCIAL_EMAIL_TO`（預設 `sharylai@gmail.com`），內容包含：
+- AI 新視野 預覽
+- 今日 Top 3 新聞
+- 兩個附件：`social-posts-YYYY-MM-DD.md` + `ai-shinshi-ye-YYYY-MM-DD.png`
+- Drive 資料夾連結 + 線上版網站連結
+
+若要改寄件人或收件人，編輯 `Config.gs` 的 `SOCIAL_EMAIL_TO` 與 `SOCIAL_EMAIL_FROM_NAME`。
+若要關閉自動寄信，設 `ENABLE_SOCIAL_EMAIL: false`。
+
+> Google 個人帳號每日寄信上限 100 封，每天一次完全不會碰到限制。
+
+### 8.5 手動測試
+- 函式下拉選 `testSocialOnly` → 執行
+- 會讀今日 Sheet 內容、生成素材、存 Drive、寄信
+- 完成後 console 會顯示 Drive 資料夾 URL 與「Email sent to ...」訊息
 
 ---
 

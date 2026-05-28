@@ -99,7 +99,17 @@ const CONFIG = {
 
   // ===== Logging =====
   EMAIL_ON_ERROR: true,
-  EMAIL_ON_SUCCESS: false
+  EMAIL_ON_SUCCESS: false,
+
+  // ===== Social 素材 =====
+  ENABLE_SOCIAL_PIPELINE: true,                  // 是否自動生成社群素材
+  DRIVE_FOLDER_ROOT: 'AI News',                  // Drive 根資料夾名稱
+  SOCIAL_MAX_ITEMS: 5,                           // 取前 N 則新聞生成貼文
+
+  // ===== Email 通知 =====
+  ENABLE_SOCIAL_EMAIL: true,                     // 是否把社群素材直接寄信
+  SOCIAL_EMAIL_TO: 'sharylai@gmail.com',         // 收件人（可改）
+  SOCIAL_EMAIL_FROM_NAME: 'AI News｜影音創客'    // 寄件人顯示名稱
 };
 
 /**

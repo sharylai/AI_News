@@ -3,6 +3,9 @@
 .DS_Store
 *.log
 
+# 原圖備份（最佳化後不需推上 GitHub）
+assets/*-original.*
+
 # Node / build artifacts (未來若加 build flow)
 node_modules/
 dist/
