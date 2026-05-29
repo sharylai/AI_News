@@ -183,17 +183,49 @@ function clearAllTriggers() {
 }
 
 /**
- * 手動測試 social 模組：讀今日 Sheet 資料 → 生成社群素材 → 存 Drive
- * 不會跑完整 pipeline，方便調 Prompt 和圖卡視覺
+ * 跑社群素材測試（預設今日；無資料時自動 fallback 到最新有資料的日期）
  */
 function testSocialOnly() {
-  const today = getTodayString();
-  console.log('Testing social pipeline for', today);
+  return testSocialForDate(null);
+}
 
-  // 從 Sheet 讀今日資料
+/**
+ * 跑昨天的社群素材（給「2026-05-28 範例資料」測試用）
+ */
+function testSocialYesterday() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  const dateStr = Utilities.formatDate(d, 'Asia/Taipei', 'yyyy-MM-dd');
+  return testSocialForDate(dateStr);
+}
+
+/**
+ * 指定日期跑社群素材
+ *
+ * @param {string|null} targetDate  'YYYY-MM-DD'；傳 null 用今日，今日無資料則 fallback 到最新有資料的日期
+ */
+function testSocialForDate(targetDate) {
   const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
   const newsSheet = ss.getSheetByName(CONFIG.SHEET_NAMES.NEWS);
   const sharySheet = ss.getSheetByName(CONFIG.SHEET_NAMES.SHARY);
+
+  // 若沒傳日期，預設今日；若今日無資料，自動找最新
+  if (!targetDate) {
+    targetDate = getTodayString();
+    const allDates = newsSheet.getDataRange().getValues().slice(1)
+      .map(r => r[1] instanceof Date
+        ? Utilities.formatDate(r[1], 'Asia/Taipei', 'yyyy-MM-dd')
+        : String(r[1]).slice(0, 10))
+      .filter(Boolean);
+    if (!allDates.includes(targetDate)) {
+      const sorted = [...new Set(allDates)].sort((a, b) => b.localeCompare(a));
+      if (sorted.length > 0) {
+        targetDate = sorted[0];
+        console.log(`今日無資料，fallback 到最新：${targetDate}`);
+      }
+    }
+  }
+  console.log('Testing social pipeline for', targetDate);
 
   const newsRows = newsSheet.getDataRange().getValues();
   const headers = newsRows[0];
@@ -206,7 +238,7 @@ function testSocialOnly() {
     const dateStr = r[idx.date] instanceof Date
       ? Utilities.formatDate(r[idx.date], 'Asia/Taipei', 'yyyy-MM-dd')
       : String(r[idx.date]).slice(0, 10);
-    if (dateStr === today) {
+    if (dateStr === targetDate) {
       items.push({
         category: r[idx.category],
         title: r[idx.title],
@@ -231,7 +263,7 @@ function testSocialOnly() {
     const dStr = d instanceof Date
       ? Utilities.formatDate(d, 'Asia/Taipei', 'yyyy-MM-dd')
       : String(d).slice(0, 10);
-    if (dStr === today) {
+    if (dStr === targetDate) {
       sharyVoice = sharyRows[i][1];
       break;
     }
@@ -239,8 +271,14 @@ function testSocialOnly() {
 
   console.log(`Found ${items.length} items, sharyVoice = ${sharyVoice ? sharyVoice.slice(0, 30) + '...' : '(empty)'}`);
 
-  const url = generateAndSaveSocialAssets(today, items, sharyVoice);
+  if (items.length === 0) {
+    console.log(`⚠️ Sheet 找不到 ${targetDate} 的資料，請確認日期格式或先匯入範例資料`);
+    return null;
+  }
+
+  const url = generateAndSaveSocialAssets(targetDate, items, sharyVoice);
   console.log('Drive folder:', url);
+  return url;
 }
 
 /**
