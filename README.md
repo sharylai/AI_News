@@ -1,13 +1,13 @@
 # AI News｜每日 8 點，AI 影音趨勢雷達
 
-每天清晨 06:00，Google Apps Script 自動抓取 AI 影音相關新聞（RSS / Tavily / Reddit），經 Claude API 三層處理（Haiku 過濾、Sonnet 評分摘要、Opus 寫觀點），寫入 Google Sheets。網站從 Sheets 即時讀取，8 點開站就看到當日內容。
+每天清晨 07:00，Google Apps Script 自動抓取 AI 影音相關新聞（RSS / Tavily / Reddit），經 Claude API 三層處理（Haiku 過濾、Sonnet 評分摘要、Opus 寫觀點），寫入 Google Sheets。網站從 Sheets 即時讀取，8 點開站就看到當日內容。
 
 **線上版本**：https://sharylai.github.io/AI_News/（GitHub Pages 啟用後生效）
 
 ## 系統架構
 
 ```
-┌─────────────┐    06:00 觸發    ┌──────────────────┐    GViz JSON    ┌──────────────────┐
+┌─────────────┐    07:00 觸發    ┌──────────────────┐    GViz JSON    ┌──────────────────┐
 │ Apps Script │ ──────────────► │ Google Sheets    │ ──────────────► │  GitHub Pages    │
 │  Pipeline   │  自動抓取+寫入   │ news / shary     │   即時讀取       │ index/archive/   │
 └─────────────┘                  └──────────────────┘                 │ search.html      │

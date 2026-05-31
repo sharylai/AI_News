@@ -1,6 +1,6 @@
 # Apps Script Pipeline 安裝指引
 
-這份指引帶你把 `apps_script/` 裡的 7 個檔案部署到 Google Apps Script，從零到每天 06:00 自動跑完整 Pipeline。
+這份指引帶你把 `apps_script/` 裡的 7 個檔案部署到 Google Apps Script，從零到每天 07:00 自動跑完整 Pipeline。
 
 預估時間：**30 分鐘**
 
@@ -116,11 +116,11 @@ Enriched sample: { score: 3.x, ... }
 
 ---
 
-## Step 7：設定每日 06:00 自動觸發
+## Step 7：設定每日 07:00 自動觸發
 
 1. 函式下拉選 `setupDailyTrigger`
 2. 按 **執行**
-3. 完成後左側「觸發條件」圖示（時鐘 ⏰）會看到一筆每天 06:00 的觸發
+3. 完成後左側「觸發條件」圖示（時鐘 ⏰）會看到一筆每天 07:00 的觸發
 
 ### 驗證觸發器
 - 函式下拉選 `listTriggers` → 執行 → 下方記錄顯示 `runDailyPipeline | CLOCK | ...`
@@ -133,7 +133,7 @@ Enriched sample: { score: 3.x, ... }
 - Apps Script 編輯器左側「執行記錄」圖示，可看每次跑的 console.log 與錯誤
 
 ### 改 Prompt / 參數
-- 直接編輯對應的 .gs 檔，存檔即生效，下次 06:00 自動套用
+- 直接編輯對應的 .gs 檔，存檔即生效，下次 07:00 自動套用
 
 ### 暫停每日推送
 - 函式下拉選 `clearAllTriggers` → 執行

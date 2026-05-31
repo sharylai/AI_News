@@ -3,7 +3,7 @@
  *
  * 主要函式：
  *   - runDailyPipeline()    每日自動執行的主流程（時間觸發器呼叫）
- *   - setupDailyTrigger()   一次性執行，建立每天 06:00 的觸發器
+ *   - setupDailyTrigger()   一次性執行，建立每天 07:00 (Asia/Taipei) 的觸發器
  *   - testRunPipeline()     開發/手動測試用（不寫入 Sheet）
  *   - clearAllTriggers()    清除所有現有觸發器（除錯用）
  */
@@ -129,7 +129,7 @@ function runDailyPipeline() {
 }
 
 /**
- * 一次性執行：建立每天 06:00 自動觸發器
+ * 一次性執行：建立每天 07:00 (Asia/Taipei) 自動觸發器
  *
  * 使用方式：在 Apps Script 編輯器選此函式 → 執行 → 授權
  */
@@ -141,16 +141,16 @@ function setupDailyTrigger() {
     }
   });
 
-  // 新增每天 06:00 (Asia/Taipei) 觸發
+  // 新增每天 07:00 (Asia/Taipei) 觸發
   ScriptApp.newTrigger('runDailyPipeline')
     .timeBased()
     .everyDays(1)
-    .atHour(6)
+    .atHour(7)
     .nearMinute(0)
     .inTimezone('Asia/Taipei')
     .create();
 
-  console.log('Daily trigger created: runDailyPipeline @ 06:00 Asia/Taipei');
+  console.log('Daily trigger created: runDailyPipeline @ 07:00 Asia/Taipei');
 }
 
 /**

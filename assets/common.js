@@ -120,7 +120,7 @@ function renderHeader(activeKey) {
 function renderFooter() {
   return `
     <footer class="brand-footer">
-      <p>AI News｜<a href="https://www.videomaker.cc" target="_blank" rel="noopener">影音創客</a>監製。Claude API 自動生成，每日 06:00 更新</p>
+      <p>AI News｜<a href="https://www.videomaker.cc" target="_blank" rel="noopener">影音創客</a>監製。Claude API 自動生成，每日 07:00 更新</p>
       <p style="margin-top:0.4rem">內容僅供參考，原文連結為準 · <a href="https://github.com/sharylai/AI_News" target="_blank">GitHub</a></p>
     </footer>
   `;
