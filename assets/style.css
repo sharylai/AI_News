@@ -56,12 +56,12 @@ body {
   color: var(--ink);
 }
 .brand-logo-img {
-  height: 48px;
+  height: 72px;
   width: auto;
   display: block;
 }
 @media (max-width: 640px) {
-  .brand-logo-img { height: 38px; }
+  .brand-logo-img { height: 52px; }
 }
 .brand-logo-icon {
   width: 44px;
