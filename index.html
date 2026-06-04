@@ -8,6 +8,7 @@
 
   <link rel="stylesheet" href="assets/style.css">
   <script src="assets/common.js"></script>
+  <script src="assets/quotes.js"></script>
   <script defer src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
 </head>
 
@@ -137,6 +138,17 @@
               </div>
             </article>
           </template>
+
+          <!-- 每日金句卡（填補空格 + 增添質感） -->
+          <div class="quote-card" x-show="quote">
+            <span class="badge">每日 AI 金句</span>
+            <p class="quote-zh" x-text="quote && quote.zh"></p>
+            <p class="quote-en" x-text="quote && quote.en"></p>
+            <div class="quote-author">
+              <span class="name" x-text="quote && quote.author"></span>
+              <span class="role" x-text="quote && quote.title"></span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -172,6 +184,7 @@
         lastUpdated: '',
         displayedDate: '',         // 實際顯示的日期（可能 fallback）
         fellBack: false,           // 是否從今日 fallback 到最新一天
+        quote: getDailyQuote(),    // 每日 AI 金句
         categoryClass,
         categoryEmoji,
         ds: dateStampParts,

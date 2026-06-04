@@ -313,6 +313,75 @@ body {
 }
 .read-more:hover { color: var(--brand-yellow-dark); }
 
+/* ===== 每日金句卡（填補快報空格） ===== */
+.quote-card {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  border: 1px solid var(--brand-yellow-dark);
+  border-radius: 0.75rem;
+  padding: 1.5rem 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 180px;
+}
+.quote-card::before {
+  content: '"';
+  position: absolute;
+  top: -0.5rem;
+  left: 0.75rem;
+  font-size: 5rem;
+  color: var(--brand-yellow);
+  opacity: 0.35;
+  font-family: Georgia, serif;
+  line-height: 1;
+}
+.quote-card .badge {
+  display: inline-block;
+  align-self: flex-start;
+  background: var(--brand-yellow);
+  color: var(--ink);
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.25rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+.quote-card .quote-zh {
+  color: #F9FAFB;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.7;
+  margin: 0 0 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+.quote-card .quote-en {
+  color: #9CA3AF;
+  font-size: 0.78rem;
+  font-style: italic;
+  line-height: 1.5;
+  margin: 0 0 0.85rem;
+}
+.quote-card .quote-author {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  border-top: 1px solid rgba(251,191,36,0.25);
+  padding-top: 0.75rem;
+}
+.quote-card .quote-author .name {
+  color: var(--brand-yellow);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+.quote-card .quote-author .role {
+  color: #9CA3AF;
+  font-size: 0.72rem;
+}
+
 /* ===== Hero Top Section（三大戰情點：強化呈現） ===== */
 .hero-grid {
   display: grid;
