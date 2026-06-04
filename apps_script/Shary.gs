@@ -50,7 +50,7 @@ function generateSharyVoice(topItems) {
   for (let attempt = 1; attempt <= MAX_RETRY + 1; attempt++) {
     try {
       const result = callClaude(
-        CONFIG.CLAUDE_MODELS.OPUS,
+        CONFIG.SHARY_MODEL,
         SHARY_SYSTEM_PROMPT,
         [{ role: 'user', content: userMsg }],
         { useCache: true, maxTokens: 500, temperature: 0.7 }
@@ -72,7 +72,7 @@ function generateSharyVoice(topItems) {
         continue;
       }
 
-      console.log(`Shary voice generated (${text.length} chars, cost $${estimateCost(result.usage, CONFIG.CLAUDE_MODELS.OPUS).toFixed(3)})`);
+      console.log(`Shary voice generated (${text.length} chars, cost $${estimateCost(result.usage, CONFIG.SHARY_MODEL).toFixed(3)})`);
       return text;
 
     } catch (e) {

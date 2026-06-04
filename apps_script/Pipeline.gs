@@ -177,6 +177,17 @@ Score = F*0.25 + S*0.25 + U*0.20 + T*0.20 + R*0.10
 function enrichByClaude(items) {
   if (items.length === 0) return [];
 
+  // 成本保險：Haiku 篩完若仍過多，只送前 N 則給 Sonnet 評分
+  // （含社群熱度的優先，其次依抓取順序）
+  if (CONFIG.MAX_ENRICH_ITEMS && items.length > CONFIG.MAX_ENRICH_ITEMS) {
+    items = items.slice().sort((a, b) => {
+      const sa = (a.social_metrics && a.social_metrics.score) || 0;
+      const sb = (b.social_metrics && b.social_metrics.score) || 0;
+      return sb - sa;
+    }).slice(0, CONFIG.MAX_ENRICH_ITEMS);
+    console.log(`評分上限：取前 ${CONFIG.MAX_ENRICH_ITEMS} 則送 Sonnet`);
+  }
+
   const enriched = [];
   let totalCost = 0;
 

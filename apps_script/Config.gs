@@ -24,8 +24,10 @@ const CONFIG = {
   CLAUDE_MODELS: {
     HAIKU: 'claude-haiku-4-5',     // 批次初篩
     SONNET: 'claude-sonnet-4-6',   // 主要分類、評分、摘要
-    OPUS: 'claude-opus-4-7'        // Shary 觀點
+    OPUS: 'claude-opus-4-7'        // 最高品質（成本高）
   },
+  SHARY_MODEL: 'claude-sonnet-4-6',  // AI 新視野 用的模型（省錢設定：Sonnet；要最佳品質改 claude-opus-4-7）
+  MAX_ENRICH_ITEMS: 8,               // 成本保險：每天最多送幾則給 Sonnet 評分（Haiku 篩完取前 N）
   CLAUDE_VERSION: '2023-06-01',
 
   // ===== Tavily API =====
