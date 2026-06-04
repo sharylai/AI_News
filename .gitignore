@@ -17,3 +17,6 @@ dist/
 .idea/
 *.swp
 *~
+
+# clasp 部署工作目錄（含 node_modules 與專案設定）
+.deploy/
