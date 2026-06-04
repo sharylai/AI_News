@@ -313,41 +313,28 @@ body {
 }
 .read-more:hover { color: var(--brand-yellow-dark); }
 
-/* ===== 每日金句卡（填補快報空格，左頭像 + 右金句） ===== */
+/* ===== 每日金句卡（金句在上，左下角頭像貼近名字） ===== */
 .quote-card {
   background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
   border: 1px solid var(--brand-yellow-dark);
   border-radius: 0.75rem;
   padding: 1.4rem 1.5rem;
   display: flex;
-  gap: 1.1rem;
+  flex-direction: column;
   position: relative;
   overflow: hidden;
   min-height: 180px;
 }
-
-/* 左側人物頭像 */
-.quote-card .quote-photo {
-  flex-shrink: 0;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: 2px solid var(--brand-yellow);
-  object-fit: cover;
-  object-position: center;
-  display: grid;
-  place-items: center;
-  font-weight: 900;
-  font-size: 1.3rem;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-}
-
-.quote-card .quote-body {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
+.quote-card::before {
+  content: '"';
+  position: absolute;
+  top: -0.3rem;
+  right: 0.9rem;
+  font-size: 4.5rem;
+  color: var(--brand-yellow);
+  opacity: 0.3;
+  font-family: Georgia, serif;
+  line-height: 1;
 }
 .quote-card .badge {
   display: inline-block;
@@ -359,7 +346,7 @@ body {
   padding: 0.15rem 0.5rem;
   border-radius: 0.25rem;
   letter-spacing: 0.05em;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.7rem;
 }
 .quote-card .quote-zh {
   color: #F9FAFB;
@@ -375,16 +362,38 @@ body {
   font-size: 0.75rem;
   font-style: italic;
   line-height: 1.5;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.9rem;
 }
+
+/* 底部：左下頭像緊貼名字 */
 .quote-card .quote-author {
   display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.6rem;
   margin-top: auto;
   border-top: 1px solid rgba(251,191,36,0.25);
-  padding-top: 0.6rem;
-  flex-wrap: wrap;
+  padding-top: 0.7rem;
+}
+.quote-card .quote-photo {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--brand-yellow);
+  object-fit: cover;
+  object-position: center;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+}
+.quote-card .quote-author .meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+  min-width: 0;
 }
 .quote-card .quote-author .name {
   color: var(--brand-yellow);

@@ -139,21 +139,21 @@
             </article>
           </template>
 
-          <!-- 每日金句卡（左頭像 + 右金句，每日一位不重複） -->
+          <!-- 每日金句卡（金句在上，左下角頭像貼近名字） -->
           <div class="quote-card" x-show="quote">
-            <!-- 頭像：有真實照片 assets/quotes/<id>.jpg 用照片，否則縮寫圓 -->
-            <img class="quote-photo" x-show="quote && !photoErr"
-                 :src="'assets/quotes/' + (quote ? quote.id : '') + '.jpg'"
-                 :alt="quote ? quote.author : ''"
-                 @error="photoErr = true">
-            <div class="quote-photo" x-show="photoErr"
-                 :style="`background:${quote ? quote.color : '#444'}`"
-                 x-text="quote && quote.initials"></div>
-            <div class="quote-body">
-              <span class="badge">每日 AI 金句</span>
-              <p class="quote-zh" x-text="quote && quote.zh"></p>
-              <p class="quote-en" x-text="quote && quote.en"></p>
-              <div class="quote-author">
+            <span class="badge">每日 AI 金句</span>
+            <p class="quote-zh" x-text="quote && quote.zh"></p>
+            <p class="quote-en" x-text="quote && quote.en"></p>
+            <div class="quote-author">
+              <!-- 頭像：有真實照片 assets/quotes/<id>.jpg 用照片，否則縮寫圓 -->
+              <img class="quote-photo" x-show="quote && !photoErr"
+                   :src="'assets/quotes/' + (quote ? quote.id : '') + '.jpg'"
+                   :alt="quote ? quote.author : ''"
+                   @error="photoErr = true">
+              <div class="quote-photo" x-show="photoErr"
+                   :style="`background:${quote ? quote.color : '#444'}`"
+                   x-text="quote && quote.initials"></div>
+              <div class="meta">
                 <span class="name" x-text="quote && quote.author"></span>
                 <span class="role" x-text="quote && quote.title"></span>
               </div>
