@@ -63,6 +63,42 @@ body {
 @media (max-width: 640px) {
   .brand-logo-img { height: 52px; }
 }
+
+/* Logo 後面的標語文字 */
+.brand-tagline {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  padding-left: 1.1rem;
+  border-left: 2px solid var(--brand-yellow);
+}
+.brand-tagline b {
+  color: var(--brand-yellow-dark);
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+/* nav 推到最右 */
+.brand-header-inner .subnav {
+  margin-left: auto;
+}
+@media (max-width: 820px) {
+  .brand-tagline {
+    font-size: 0.85rem;
+    padding-left: 0.7rem;
+    border-left-width: 2px;
+  }
+  .brand-tagline b { font-size: 0.95rem; }
+}
+@media (max-width: 600px) {
+  .brand-tagline {
+    border-left: 0;
+    padding-left: 0;
+    width: 100%;
+    font-size: 0.8rem;
+  }
+}
 .brand-logo-icon {
   width: 44px;
   height: 44px;

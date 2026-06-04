@@ -103,8 +103,9 @@ function renderHeader(activeKey) {
     <div class="brand-header">
       <div class="brand-header-inner">
         <a href="index.html" class="brand-logo">
-          <img src="assets/logo.png?v=20260605c" alt="AI Video News｜每日 8 點 AI 影音趨勢雷達" class="brand-logo-img">
+          <img src="assets/logo.png?v=20260605e" alt="AI Video News" class="brand-logo-img">
         </a>
+        <span class="brand-tagline">每日 <b>8</b> 點 ｜ AI 影音趨勢雷達</span>
         <nav class="subnav">
           <a href="index.html" class="${activeKey==='today'?'active':''}">今日</a>
           <a href="archive.html" class="${activeKey==='archive'?'active':''}">歷史封存</a>
