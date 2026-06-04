@@ -219,6 +219,35 @@ ${(item.content || '').slice(0, 1500)}`;
   return enriched;
 }
 
+/**
+ * 來源網域驗證：source_url 的網域是否與宣稱的公司相符
+ * 例如 company=Runway，source_url 應該是 runwayml.com（或主流媒體報導）
+ */
+function sourceMatchesCompany(item) {
+  if (!item.company || !item.source_url) return false;
+  let host = '';
+  try { host = new URL(item.source_url).host.toLowerCase().replace(/^www\./, ''); }
+  catch (e) { return false; }
+
+  // 公司官方網域對照表（可在 Config.gs 擴充）
+  const map = CONFIG.COMPANY_DOMAINS || {};
+  const company = item.company.trim();
+  const officialDomain = map[company];
+
+  // 1. 命中官方網域 → 通過
+  if (officialDomain && host.indexOf(officialDomain) !== -1) return true;
+
+  // 2. 來自可信主流媒體 → 通過（二手報導也算可信）
+  const trustedMedia = CONFIG.TRUSTED_MEDIA_DOMAINS || [];
+  if (trustedMedia.some(d => host.indexOf(d) !== -1)) return true;
+
+  // 3. 公司名稱（去空格小寫）出現在網域中 → 通過（寬鬆比對）
+  const companyKey = company.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (companyKey.length >= 4 && host.replace(/[^a-z0-9]/g, '').indexOf(companyKey) !== -1) return true;
+
+  return false;
+}
+
 function generateId(publishedAt) {
   const date = publishedAt ? publishedAt.slice(0, 10).replace(/-/g, '') : Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyyMMdd');
   const rand = Utilities.getUuid().slice(0, 6);
@@ -232,6 +261,30 @@ function generateId(publishedAt) {
 function rankAndFilter(enriched, recentHistory) {
   // recentHistory = 最近 14 天已推送的新聞（用於跨日去重和公司頻率檢查）
   recentHistory = recentHistory || [];
+
+  // ===== 真實性防線（authenticity-first）=====
+  // 0a. 來源網域驗證：宣稱某公司發布的工具，其 source_url 網域須與公司相符
+  //     不符者降級為待人工確認，不自動發佈（防 Runway 假新聞重演）
+  // 0b. 可信度閘門：只有 A/B 級自動發佈；C/D 級轉入 review 分頁
+  const review = [];
+  enriched = enriched.filter(item => {
+    const cred = String(item.credibility || '').toUpperCase();
+    if (CONFIG.MIN_CREDIBILITY_TO_PUBLISH === 'B' && (cred === 'C' || cred === 'D')) {
+      item._review_reason = `可信度 ${cred} 級，未達自動發佈門檻`;
+      review.push(item);
+      return false;
+    }
+    if (CONFIG.VERIFY_SOURCE_DOMAIN && item.category === '工具' && !sourceMatchesCompany(item)) {
+      item._review_reason = `工具消息來源網域與公司「${item.company}」不符，疑似非官方`;
+      review.push(item);
+      return false;
+    }
+    return true;
+  });
+  if (review.length > 0) {
+    console.warn(`真實性防線攔截 ${review.length} 則，轉入待人工確認`);
+    try { writeToReviewSheet(review); } catch (e) { console.warn('寫入 review 失敗:', e.message); }
+  }
 
   // 1. QC Gate: 候選 >20 時提高閾值
   let threshold = CONFIG.SCORE_MIN_PUBLISH;

@@ -109,7 +109,40 @@ const CONFIG = {
   // ===== Email 通知 =====
   ENABLE_SOCIAL_EMAIL: true,                     // 是否把社群素材直接寄信
   SOCIAL_EMAIL_TO: 'sharylai@gmail.com',         // 收件人（可改）
-  SOCIAL_EMAIL_FROM_NAME: 'AI News｜影音創客'    // 寄件人顯示名稱
+  SOCIAL_EMAIL_FROM_NAME: 'AI News｜影音創客',   // 寄件人顯示名稱
+
+  // ===== 真實性防線（authenticity-first）=====
+  MIN_CREDIBILITY_TO_PUBLISH: 'B',               // 只有 A/B 級自動發佈，C/D 轉待人工確認
+  VERIFY_SOURCE_DOMAIN: true,                    // 工具消息須通過來源網域驗證
+  REVIEW_SHEET_NAME: 'review',                   // 待人工確認的分頁名稱
+
+  // 公司官方網域對照表（工具消息來源驗證用，可持續擴充）
+  COMPANY_DOMAINS: {
+    'OpenAI': 'openai.com',
+    'Anthropic': 'anthropic.com',
+    'Google': 'google',                          // google.com / blog.google / deepmind.google
+    'Google DeepMind': 'deepmind.google',
+    'Runway': 'runwayml.com',
+    'Pika Labs': 'pika.art',
+    'Stability AI': 'stability.ai',
+    'ElevenLabs': 'elevenlabs.io',
+    'HeyGen': 'heygen.com',
+    'Synthesia': 'synthesia.io',
+    'Adobe': 'adobe.com',
+    'Meta': 'meta.com',
+    'ByteDance': 'bytedance.com',
+    'Kuaishou': 'kuaishou.com',
+    'TikTok': 'tiktok.com',
+    'Amazon': 'amazon.com',
+    'Microsoft': 'microsoft.com'
+  },
+
+  // 可信主流媒體網域（二手報導也視為可信來源）
+  TRUSTED_MEDIA_DOMAINS: [
+    'techcrunch.com', 'theverge.com', 'wired.com', 'venturebeat.com',
+    'arstechnica.com', 'reuters.com', 'bloomberg.com', 'engadget.com',
+    'technologyreview.com', 'theinformation.com'
+  ]
 };
 
 /**

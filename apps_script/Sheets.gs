@@ -161,6 +161,31 @@ function removeTodayRows(sheet, dateColumn, today) {
 }
 
 /**
+ * 寫入「待人工確認」分頁（被真實性防線攔截的項目）
+ * 這些項目不會出現在正式網站，需人工審核後才手動移到 news
+ */
+function writeToReviewSheet(items) {
+  if (!items || items.length === 0) return;
+  const ss = SpreadsheetApp.openById(CONFIG.SHEET_ID);
+  let sheet = ss.getSheetByName(CONFIG.REVIEW_SHEET_NAME);
+  const cols = ['date', 'reason', 'title', 'category', 'credibility', 'score',
+                'company', 'source_url', 'one_line', 'created_at'];
+  if (!sheet) {
+    sheet = ss.insertSheet(CONFIG.REVIEW_SHEET_NAME);
+    sheet.appendRow(cols);
+  }
+  const today = getTodayString();
+  const createdAt = nowIso();
+  const rows = items.map(it => [
+    today, it._review_reason || '', it.title || '', it.category || '',
+    it.credibility || '', Number(it.score) || 0, it.company || '',
+    it.source_url || '', it.one_line || '', createdAt
+  ]);
+  sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, cols.length).setValues(rows);
+  console.log(`寫入 review 分頁 ${rows.length} 則待人工確認`);
+}
+
+/**
  * 寄發錯誤通知 Email
  */
 function sendErrorEmail(subject, body) {
