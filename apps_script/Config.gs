@@ -54,18 +54,19 @@ const CONFIG = {
   CROSS_DAY_SIMILARITY_LIMIT: 0.85,    // 跨日標題相似 > 此值視為重複丟棄
 
   // ===== RSS 來源（A 級） =====
+  // 註：失效來源已移除/替換（2026-06 驗證）。改用穩定的媒體與聚合來源。
   RSS_SOURCES: [
     { name: 'OpenAI Blog', url: 'https://openai.com/blog/rss.xml' },
-    { name: 'Anthropic News', url: 'https://www.anthropic.com/news/rss' },
     { name: 'Google DeepMind', url: 'https://deepmind.google/blog/rss.xml' },
-    { name: 'Runway Research', url: 'https://runwayml.com/research/rss' },
-    { name: 'Stability AI', url: 'https://stability.ai/news/rss.xml' },
-    { name: 'ElevenLabs', url: 'https://elevenlabs.io/blog/rss.xml' },
-    { name: 'HeyGen', url: 'https://www.heygen.com/blog/rss.xml' },
-    { name: 'Synthesia', url: 'https://www.synthesia.io/blog/rss.xml' },
     { name: 'TechCrunch AI', url: 'https://techcrunch.com/category/artificial-intelligence/feed/' },
-    { name: 'The Verge AI', url: 'https://www.theverge.com/ai-artificial-intelligence/rss/index.xml' },
-    { name: 'VentureBeat AI', url: 'https://venturebeat.com/category/ai/feed/' }
+    { name: 'VentureBeat AI', url: 'https://venturebeat.com/category/ai/feed/' },
+    { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml' },
+    { name: 'MIT Tech Review', url: 'https://www.technologyreview.com/feed/' },
+    { name: 'Ars Technica AI', url: 'https://arstechnica.com/ai/feed/' },
+    { name: 'Engadget', url: 'https://www.engadget.com/rss.xml' },
+    { name: 'Hugging Face Blog', url: 'https://huggingface.co/blog/feed.xml' },
+    { name: 'Google AI Blog', url: 'https://blog.google/technology/ai/rss/' },
+    { name: 'Synthedia', url: 'https://synthedia.substack.com/feed' }
   ],
 
   // ===== Tavily 關鍵字 =====
