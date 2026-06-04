@@ -8,13 +8,13 @@
 ## Part 1. 系統概覽
 
 ### 1.1 一句話描述
-每天清晨 07:00，Google Apps Script 自動抓取 AI 影音新聞 → 呼叫 Claude API 過濾+評分+撰寫 → 寫入 Google Sheets → 08:00 前完成；使用者直接訪問 GitHub Pages 網站閱讀，網站即時從 Sheets 讀取資料。
+每天清晨 08:00，Google Apps Script 自動抓取 AI 影音新聞 → 呼叫 Claude API 過濾+評分+撰寫 → 寫入 Google Sheets → 08:00 前完成；使用者直接訪問 GitHub Pages 網站閱讀，網站即時從 Sheets 讀取資料。
 
 ### 1.2 架構圖
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│                     07:00 每日自動 Pipeline                          │
+│                     08:00 每日自動 Pipeline                          │
 │                  (Google Apps Script 時間觸發器)                     │
 ├──────────────────────────────────────────────────────────────────────┤
 │                                                                      │
@@ -170,7 +170,7 @@ function runDailyPipeline() {
 ### 3.3 時間預算
 - 預計總執行時間：8-15 分鐘
 - Apps Script 單次執行上限：30 分鐘（足夠）
-- 07:00 開始 → 06:15 前完成 → 08:00 使用者開站時資料已就緒
+- 08:00 開始 → 06:15 前完成 → 08:00 使用者開站時資料已就緒
 
 ### 3.4 錯誤處理
 - 任何步驟失敗 → Catch → 寫 `pipeline_log` + 寄信通知
@@ -433,7 +433,7 @@ function newsApp() {
 | 4 | 實作 `dedupe()` + `filterByClaude(Haiku)` | 篩出 AI 影音相關項目 |
 | 5 | 實作 `enrichByClaude(Sonnet)` 含完整 JSON 解析 | 可寫入結構化欄位 |
 | 6 | 實作 `rankAndFilter()` + 多樣性保護 | 取出 Top 8-10 |
-| 7 | 實作 `generateSharyVoice(Opus)` + 寫 Sheets + 設時間觸發器 | 07:00 自動跑完整流程 |
+| 7 | 實作 `generateSharyVoice(Opus)` + 寫 Sheets + 設時間觸發器 | 08:00 自動跑完整流程 |
 
 ### Phase 2：Web 前端（Day 8-12）
 
@@ -460,7 +460,7 @@ function newsApp() {
 
 | 風險 | 緩解 |
 |------|------|
-| Apps Script 執行時間 >30 分鐘 | 拆兩個觸發器（抓取 07:00 / 處理 06:30） |
+| Apps Script 執行時間 >30 分鐘 | 拆兩個觸發器（抓取 08:00 / 處理 06:30） |
 | Sheets 讀取速度慢（>1000 列後） | 每月將舊資料封存到第二份 Sheet |
 | GViz JSON 公開端點被濫用 | 加 Cloudflare Worker 中介（Phase 2） |
 | Claude API 帳單失控 | 設定每日支出上限 alert（Anthropic Console） |
