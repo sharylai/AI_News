@@ -104,6 +104,22 @@ const CONFIG = {
   EMAIL_ON_ERROR: true,
   EMAIL_ON_SUCCESS: false,
 
+  // ===== AI 製片實戰（Studio / YouTube 半自動）=====
+  ENABLE_STUDIO_PIPELINE: true,                  // 是否自動抓 YouTube 製片教學
+  STUDIO_SHEET_NAME: 'studio',
+  STUDIO_DAILY_COUNT: 3,                         // 每天精選幾則
+  YOUTUBE_API_URL: 'https://www.googleapis.com/youtube/v3/search',
+  YOUTUBE_LOOKBACK_DAYS: 7,                      // 只抓近 N 天影片
+  YOUTUBE_MIN_VIEWS: 0,                          // （search API 不回觀看數，保留欄位）
+  STUDIO_QUERIES: [
+    'AI video generation tutorial',
+    'Sora AI filmmaking workflow',
+    'Runway Gen AI video tutorial',
+    'AI 影片製作教學',
+    'AI filmmaking workflow breakdown',
+    'Veo AI video tutorial'
+  ],
+
   // ===== Social 素材 =====
   ENABLE_SOCIAL_PIPELINE: true,                  // 是否自動生成社群素材
   DRIVE_FOLDER_ROOT: 'AI News',                  // Drive 根資料夾名稱

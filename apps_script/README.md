@@ -192,6 +192,22 @@ Pipeline Step 7 完成寫入 Sheet 後，自動會跑 Step 8 生成社群素材�
 
 > Google 個人帳號每日寄信上限 100 封，每天一次完全不會碰到限制。
 
+### 8.6 AI 製片實戰（YouTube 半自動）
+
+每天自動從 YouTube 抓 AI 影片製作教學/案例，Claude 篩選最佳 3 則寫成繁中卡片，存入 `studio` 分頁。
+
+**取得 YouTube Data API Key（免費）：**
+1. 前往 https://console.cloud.google.com/apis/credentials
+2. 建立專案（或選現有）→ 啟用 **YouTube Data API v3**
+3. 建立憑證 → API 金鑰 → 複製
+4. Apps Script 專案設定 → 指令碼屬性 → 新增 `YOUTUBE_API_KEY`
+
+> 免費額度每日 10,000 units，我們每天約用 600 units（6 個關鍵字搜尋），綽綽有餘。
+
+**手動測試：** 函式選 `testStudioOnly` → 執行 → 看 console 產出 3 則，並寫入 studio 分頁。
+
+**關閉：** Config.gs 設 `ENABLE_STUDIO_PIPELINE: false`。
+
 ### 8.5 手動測試
 - 函式下拉選 `testSocialOnly` → 執行
 - 會讀今日 Sheet 內容、生成素材、存 Drive、寄信

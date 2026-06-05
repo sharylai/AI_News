@@ -82,6 +82,15 @@ function runDailyPipeline() {
     writeToNewsSheet(ranked);
     writeToSharyVoiceSheet(sharyVoice);
 
+    // Step 7.5: AI 製片實戰（YouTube 半自動抓取 → studio 分頁）
+    if (CONFIG.ENABLE_STUDIO_PIPELINE) {
+      try {
+        generateStudioPicks();
+      } catch (e) {
+        console.warn('Studio pipeline failed (non-fatal):', e.message);
+      }
+    }
+
     // Step 8: 社群素材生成（IG/Threads/FB 文案 + AI 新視野 圖卡 → Drive）
     let socialFolderUrl = '';
     if (CONFIG.ENABLE_SOCIAL_PIPELINE) {
