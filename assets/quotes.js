@@ -52,8 +52,6 @@ window.AI_QUOTES = [
     en: "The best way to predict the future is to invent it.", zh: "預測未來最好的方法，就是創造它。" },
   { id: 'sebastian-thrun', initials: 'ST', color: '#9D174D', author: 'Sebastian Thrun',  title: 'Udacity 創辦人',
     en: "Nobody phrases it this way, but I think that artificial intelligence is almost a humanities discipline.", zh: "雖然沒人這樣說，但我認為人工智慧幾乎是一門人文學科。" },
-  { id: 'gray-scott',      initials: 'GS', color: '#0F766E', author: 'Gray Scott',       title: '未來學家',
-    en: "The real question is, when will we draft an artificial intelligence bill of rights?", zh: "真正的問題是：我們何時會為人工智慧起草一份權利法案？" },
   { id: 'cassie-kozyrkov', initials: 'CK', color: '#A21CAF', author: 'Cassie Kozyrkov',  title: 'Google 前首席決策科學家',
     en: "AI is about making machines do tasks that would require human intelligence — it's a tool, and like any tool, what matters is how you use it.", zh: "AI 是讓機器完成原本需要人類智慧的任務——它是工具，而工具的價值取決於你怎麼用。" },
   { id: 'alan-turing',     initials: 'AT', color: '#374151', author: 'Alan Turing',      title: '計算機科學之父',
