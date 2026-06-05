@@ -11,18 +11,18 @@
   <meta property="og:site_name" content="AI Video News" />
   <meta property="og:title" content="AI Video News｜每日 8 點 AI 影音趨勢雷達" />
   <meta property="og:description" content="每天 8 點，把全球 AI 影音情報轉化為立刻可用的創作靈感與商業行動。影音創客監製。" />
-  <meta property="og:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605m" />
+  <meta property="og:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605n" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:url" content="https://sharylai.github.io/AI_News/" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="AI Video News｜每日 8 點 AI 影音趨勢雷達" />
   <meta name="twitter:description" content="每天 8 點，把全球 AI 影音情報轉化為立刻可用的創作靈感與商業行動。" />
-  <meta name="twitter:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605m" />
+  <meta name="twitter:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605n" />
 
-  <link rel="stylesheet" href="assets/style.css?v=20260605m">
-  <script src="assets/common.js?v=20260605m"></script>
-  <script src="assets/quotes.js?v=20260605m"></script>
+  <link rel="stylesheet" href="assets/style.css?v=20260605n">
+  <script src="assets/common.js?v=20260605n"></script>
+  <script src="assets/quotes.js?v=20260605n"></script>
   <script defer src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
 </head>
 
@@ -204,14 +204,14 @@
         </div>
       </section>
 
-      <!-- 連結庫 -->
-      <section style="margin-top:3rem">
+      <!-- 昨日快報連結 -->
+      <section x-show="yesterdayItems.length > 0" style="margin-top:3rem">
         <div class="section-title">
-          <h2>🔗 今日完整連結庫</h2>
-          <span class="count" x-text="items.length + ' 則'"></span>
+          <h2>🔗 昨日快報連結</h2>
+          <span class="count"><span x-text="yesterdayDateStr"></span> · <span x-text="yesterdayItems.length"></span> 則</span>
         </div>
         <div class="link-list">
-          <template x-for="item in items" :key="item.id">
+          <template x-for="item in yesterdayItems" :key="item.id">
             <a :href="item.source_url" target="_blank" rel="noopener">
               <span class="cat" x-text="item.category"></span>
               <span class="title" x-text="item.title"></span>
@@ -219,6 +219,9 @@
             </a>
           </template>
         </div>
+        <p style="margin-top:0.75rem;text-align:right">
+          <a href="archive.html" style="color:var(--brand-yellow-dark);font-weight:700;text-decoration:none;font-size:0.85rem">查看更多歷史 →</a>
+        </p>
       </section>
 
     </main>
@@ -239,6 +242,8 @@
         quote: getDailyQuote(),    // 每日 AI 金句
         photoErr: false,           // 頭像照片載入失敗 → 改用縮寫圓
         studioItems: [],           // AI 製片實戰
+        yesterdayItems: [],        // 昨日快報連結
+        yesterdayDate: '',
         categoryClass,
         categoryEmoji,
         pf: platformMeta,
@@ -246,6 +251,7 @@
 
         get todayDate() { return todayString(); },
         get displayDateStr() { return displayDate(this.displayedDate || this.todayDate); },
+        get yesterdayDateStr() { return this.yesterdayDate ? displayDate(this.yesterdayDate) : ''; },
 
         get topThree() {
           return this.items
@@ -281,6 +287,17 @@
                 this.fellBack = true;
               }
             }
+            // 昨日快報：顯示日期的前一個「有資料的日期」
+            const dates = [...new Set(news.map(n => n.date).filter(Boolean))]
+              .sort((a, b) => b.localeCompare(a));
+            const di = dates.indexOf(this.displayedDate);
+            if (di >= 0 && di + 1 < dates.length) {
+              this.yesterdayDate = dates[di + 1];
+              this.yesterdayItems = news
+                .filter(i => i.date === this.yesterdayDate)
+                .sort((a, b) => b.score - a.score);
+            }
+
             const dayShary = shary.find(s => s.date === this.displayedDate);
             this.sharyVoice = dayShary ? dayShary.content : '';
             if (this.items.length > 0) {
