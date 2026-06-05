@@ -11,18 +11,18 @@
   <meta property="og:site_name" content="AI Video News" />
   <meta property="og:title" content="AI Video News｜每日 8 點 AI 影音趨勢雷達" />
   <meta property="og:description" content="每天 8 點，把全球 AI 影音情報轉化為立刻可用的創作靈感與商業行動。影音創客監製。" />
-  <meta property="og:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605j" />
+  <meta property="og:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605k" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:url" content="https://sharylai.github.io/AI_News/" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="AI Video News｜每日 8 點 AI 影音趨勢雷達" />
   <meta name="twitter:description" content="每天 8 點，把全球 AI 影音情報轉化為立刻可用的創作靈感與商業行動。" />
-  <meta name="twitter:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605j" />
+  <meta name="twitter:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605k" />
 
-  <link rel="stylesheet" href="assets/style.css?v=20260605j">
-  <script src="assets/common.js?v=20260605j"></script>
-  <script src="assets/quotes.js?v=20260605j"></script>
+  <link rel="stylesheet" href="assets/style.css?v=20260605k">
+  <script src="assets/common.js?v=20260605k"></script>
+  <script src="assets/quotes.js?v=20260605k"></script>
   <script defer src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
 </head>
 
@@ -176,6 +176,34 @@
         </div>
       </section>
 
+      <!-- AI 製片實戰 -->
+      <section x-show="studioItems.length > 0" style="margin-bottom:3rem">
+        <div class="section-title">
+          <h2>🎬 AI 製片實戰</h2>
+          <span class="count">工具 × 工作流｜每日精選 <span x-text="studioItems.length"></span> 則</span>
+        </div>
+        <p style="margin:-0.75rem 0 1.5rem;color:var(--ink-soft);font-size:0.9rem;line-height:1.7">
+          從 YouTube、Threads、Instagram、小紅書 收集最新「AI 影片製作」教學與案例，聚焦工具運用與影片作業流程，附原始出處。
+        </p>
+        <div class="studio-grid">
+          <template x-for="item in studioItems" :key="item.id">
+            <article class="studio-card">
+              <span class="platform" :style="`background:${pf(item.platform).color}`">
+                <span class="pf-icon" x-text="pf(item.platform).icon"></span>
+                <span x-text="pf(item.platform).label"></span>
+              </span>
+              <span class="angle" x-show="item.angle" x-text="item.angle"></span>
+              <h3 class="studio-title" x-text="item.title"></h3>
+              <p class="studio-desc" x-text="item.summary"></p>
+              <div class="studio-foot">
+                <span class="creator" x-text="item.creator"></span>
+                <a class="studio-link" :href="item.source_url" target="_blank" rel="noopener">看原文 →</a>
+              </div>
+            </article>
+          </template>
+        </div>
+      </section>
+
       <!-- 連結庫 -->
       <section style="margin-top:3rem">
         <div class="section-title">
@@ -210,8 +238,10 @@
         fellBack: false,           // 是否從今日 fallback 到最新一天
         quote: getDailyQuote(),    // 每日 AI 金句
         photoErr: false,           // 頭像照片載入失敗 → 改用縮寫圓
+        studioItems: [],           // AI 製片實戰
         categoryClass,
         categoryEmoji,
+        pf: platformMeta,
         ds: dateStampParts,
 
         get todayDate() { return todayString(); },
@@ -258,6 +288,18 @@
                 (i.created_at > max ? i.created_at : max), '');
               this.lastUpdated = formatTime(latest);
             }
+
+            // AI 製片實戰（studio 分頁，獨立載入，失敗不影響主內容）
+            try {
+              const studio = await fetchSheet(AI_NEWS_CONFIG.SHEETS.STUDIO);
+              let s = studio.filter(i => i.date === this.displayedDate);
+              if (s.length === 0) {
+                const sd = [...new Set(studio.map(i => i.date).filter(Boolean))]
+                  .sort((a, b) => b.localeCompare(a));
+                if (sd.length > 0) s = studio.filter(i => i.date === sd[0]);
+              }
+              this.studioItems = s.slice(0, 3);
+            } catch (e) { console.warn('studio 載入略過:', e.message); }
           } catch (err) {
             console.error(err);
             this.error = err.message || '未知錯誤';

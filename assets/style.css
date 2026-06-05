@@ -476,6 +476,94 @@ body {
   letter-spacing: 0.04em;
 }
 
+/* ===== AI 製片實戰（Studio）===== */
+.studio-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+@media (min-width: 768px) {
+  .studio-grid { grid-template-columns: repeat(3, 1fr); }
+}
+.studio-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--brand-yellow);
+  border-radius: 0.6rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s;
+}
+.studio-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.07);
+  border-top-color: var(--brand-yellow-dark);
+}
+.studio-card .platform {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  align-self: flex-start;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #fff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  margin-bottom: 0.6rem;
+}
+.studio-card .platform .pf-icon {
+  display: grid;
+  place-items: center;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  font-size: 0.65rem;
+}
+.studio-card .angle {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--brand-yellow-dark);
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.02em;
+}
+.studio-card .studio-title {
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.45;
+  margin: 0 0 0.5rem;
+}
+.studio-card .studio-desc {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  margin: 0 0 0.85rem;
+  flex: 1;
+}
+.studio-card .studio-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  padding-top: 0.7rem;
+  font-size: 0.78rem;
+}
+.studio-card .creator {
+  color: var(--ink-soft);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.studio-card .studio-link {
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.studio-card .studio-link:hover { color: var(--brand-yellow-dark); }
+
 /* ===== Hero Top Section（三大戰情點：強化呈現） ===== */
 .hero-grid {
   display: grid;

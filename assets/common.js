@@ -4,7 +4,7 @@
 
 window.AI_NEWS_CONFIG = {
   SHEET_ID: '1_EiUhQ-nSOtFaLzEiQcMu-eBFb9P0504VUsw_-5boI8',
-  SHEETS: { NEWS: 'news', SHARY: 'shary_voice' },
+  SHEETS: { NEWS: 'news', SHARY: 'shary_voice', STUDIO: 'studio' },
   // 影音創客主站連結（修改為實際 URL）
   PARENT_SITE: {
     home: '#',
@@ -52,6 +52,19 @@ function categoryClass(category) {
     '教學': 'cat-teach',
     '情報': 'cat-news'
   }[category] || '';
+}
+
+function platformMeta(platform) {
+  const map = {
+    'YouTube':  { icon: '▶', color: '#FF0000', label: 'YouTube' },
+    'Threads':  { icon: '@', color: '#000000', label: 'Threads' },
+    'Instagram':{ icon: '◉', color: '#C13584', label: 'Instagram' },
+    'IG':       { icon: '◉', color: '#C13584', label: 'Instagram' },
+    '小紅書':    { icon: '小', color: '#FF2442', label: '小紅書' },
+    'TikTok':   { icon: '♪', color: '#000000', label: 'TikTok' },
+    'X':        { icon: '𝕏', color: '#000000', label: 'X' }
+  };
+  return map[platform] || { icon: '🔗', color: '#6B7280', label: platform || '來源' };
 }
 
 function categoryEmoji(category) {
