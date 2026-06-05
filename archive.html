@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>歷史封存｜AI News</title>
 
-  <link rel="stylesheet" href="assets/style.css?v=20260605g">
-  <script src="assets/common.js?v=20260605g"></script>
+  <link rel="stylesheet" href="assets/style.css?v=20260605h">
+  <script src="assets/common.js?v=20260605h"></script>
   <script defer src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
 </head>
 
@@ -123,7 +123,8 @@
                     <span style="font-size:0.75rem;color:var(--brand-yellow-dark);font-weight:800" x-text="'★' + item.score.toFixed(1)"></span>
                   </div>
                   <h3 class="news-card-title" style="font-size:1rem" x-text="item.title"></h3>
-                  <p class="news-card-desc" x-text="item.one_line"></p>
+                  <p class="news-card-desc" style="font-weight:600;color:var(--ink);margin-bottom:0.35rem" x-text="item.one_line"></p>
+                  <p class="news-card-desc" x-text="item.key_takeaway"></p>
                 </div>
               </div>
               <div class="news-card-actions">
