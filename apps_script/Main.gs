@@ -138,6 +138,54 @@ function runDailyPipeline() {
 }
 
 /**
+ * Web App 入口（GitHub Actions 備援觸發器呼叫）
+ *
+ * 冪等設計：當天 news 已有資料就跳過，只在主觸發器失敗時補跑。
+ * 安全：需帶正確 token（?token=...，對應 Script Property BACKUP_TOKEN）
+ *
+ * 部署：clasp deploy 或編輯器「部署 → 新增部署 → 網頁應用程式」
+ *   執行身分：我自己；存取權：任何人
+ */
+function doGet(e) {
+  const out = (obj) => ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+
+  // 1. token 驗證
+  const expected = PropertiesService.getScriptProperties().getProperty('BACKUP_TOKEN');
+  const got = e && e.parameter && e.parameter.token;
+  if (!expected || got !== expected) {
+    return out({ ok: false, error: 'unauthorized' });
+  }
+
+  // 2. 冪等檢查：今天是否已有 news
+  const today = getTodayString();
+  try {
+    const sheet = SpreadsheetApp.openById(CONFIG.SHEET_ID).getSheetByName(CONFIG.SHEET_NAMES.NEWS);
+    const data = sheet.getDataRange().getValues();
+    const dateCol = NEWS_COLUMNS.indexOf('date');
+    const hasToday = data.slice(1).some(r => {
+      const v = r[dateCol];
+      const s = v instanceof Date ? Utilities.formatDate(v, 'Asia/Taipei', 'yyyy-MM-dd') : String(v).slice(0, 10);
+      return s === today;
+    });
+    if (hasToday) {
+      return out({ ok: true, action: 'skipped', reason: 'today already published', date: today });
+    }
+  } catch (err) {
+    return out({ ok: false, error: 'sheet check failed: ' + err.message });
+  }
+
+  // 3. 今天沒資料 → 補跑
+  try {
+    runDailyPipeline();
+    return out({ ok: true, action: 'ran', date: today });
+  } catch (err) {
+    return out({ ok: false, action: 'run failed', error: err.message });
+  }
+}
+
+/**
  * 一次性執行：建立每天 08:00 (Asia/Taipei) 自動觸發器
  *
  * 使用方式：在 Apps Script 編輯器選此函式 → 執行 → 授權
