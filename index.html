@@ -11,18 +11,18 @@
   <meta property="og:site_name" content="AI Video News" />
   <meta property="og:title" content="AI Video News｜每日 8 點 AI 影音趨勢雷達" />
   <meta property="og:description" content="每天 8 點，把全球 AI 影音情報轉化為立刻可用的創作靈感與商業行動。影音創客監製。" />
-  <meta property="og:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605p" />
+  <meta property="og:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605q" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:url" content="https://sharylai.github.io/AI_News/" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="AI Video News｜每日 8 點 AI 影音趨勢雷達" />
   <meta name="twitter:description" content="每天 8 點，把全球 AI 影音情報轉化為立刻可用的創作靈感與商業行動。" />
-  <meta name="twitter:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605p" />
+  <meta name="twitter:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605q" />
 
-  <link rel="stylesheet" href="assets/style.css?v=20260605p">
-  <script src="assets/common.js?v=20260605p"></script>
-  <script src="assets/quotes.js?v=20260605p"></script>
+  <link rel="stylesheet" href="assets/style.css?v=20260605q">
+  <script src="assets/common.js?v=20260605q"></script>
+  <script src="assets/quotes.js?v=20260605q"></script>
   <script defer src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
 </head>
 
@@ -272,9 +272,11 @@
           this.loading = true;
           this.error = null;
           try {
+            // 首頁只抓最近 N 列（效能優化；歷史/搜尋頁才抓全部）
+            const lim = AI_NEWS_CONFIG.HOME_RECENT_LIMIT || 60;
             const [news, shary] = await Promise.all([
-              fetchSheet(AI_NEWS_CONFIG.SHEETS.NEWS),
-              fetchSheet(AI_NEWS_CONFIG.SHEETS.SHARY)
+              fetchSheetRecent(AI_NEWS_CONFIG.SHEETS.NEWS, lim, 'B'),
+              fetchSheetRecent(AI_NEWS_CONFIG.SHEETS.SHARY, 20, 'A')
             ]);
 
             // 嘗試今日；若無，回退到最新有資料的一天
@@ -310,7 +312,7 @@
 
             // AI 製片實戰（studio 分頁，獨立載入，失敗不影響主內容）
             try {
-              const studio = await fetchSheet(AI_NEWS_CONFIG.SHEETS.STUDIO);
+              const studio = await fetchSheetRecent(AI_NEWS_CONFIG.SHEETS.STUDIO, 30, 'B');
               let s = studio.filter(i => i.date === this.displayedDate);
               if (s.length === 0) {
                 const sd = [...new Set(studio.map(i => i.date).filter(Boolean))]

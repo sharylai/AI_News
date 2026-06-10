@@ -5,6 +5,8 @@
 window.AI_NEWS_CONFIG = {
   SHEET_ID: '1_EiUhQ-nSOtFaLzEiQcMu-eBFb9P0504VUsw_-5boI8',
   SHEETS: { NEWS: 'news', SHARY: 'shary_voice', STUDIO: 'studio' },
+  // 首頁只抓最近 N 列（資料量變大時維持快速；歷史/搜尋頁仍抓全部）
+  HOME_RECENT_LIMIT: 60,
   // 影音創客主站連結（修改為實際 URL）
   PARENT_SITE: {
     home: '#',
@@ -15,18 +17,53 @@ window.AI_NEWS_CONFIG = {
   }
 };
 
+/**
+ * 抓取整張分頁（歷史頁、搜尋頁用 —— 需要全部資料）
+ */
 async function fetchSheet(sheetName) {
+  return fetchSheetQuery(sheetName, null);
+}
+
+/**
+ * 未來擴充：用 GViz tq 查詢只抓部分資料（首頁效能優化）
+ *
+ * @param {string} sheetName
+ * @param {string|null} tq  GViz 查詢語法，例如 "select * order by B desc limit 40"
+ *                          傳 null 則抓全部
+ */
+async function fetchSheetQuery(sheetName, tq) {
   const id = window.AI_NEWS_CONFIG.SHEET_ID;
   if (!id || id === 'YOUR_GOOGLE_SHEET_ID_HERE') {
     throw new Error('尚未設定 SHEET_ID，請編輯 assets/common.js。');
   }
-  const url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+  let url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+  if (tq) url += `&tq=${encodeURIComponent(tq)}`;
   const resp = await fetch(url);
   if (!resp.ok) throw new Error(`Sheet「${sheetName}」載入失敗 (HTTP ${resp.status})`);
   const text = await resp.text();
   const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);?\s*$/);
   if (!match) throw new Error(`Sheet「${sheetName}」回應格式錯誤，請確認已設為「知道連結者可檢視」。`);
   return parseGviz(JSON.parse(match[1]));
+}
+
+/**
+ * 抓取最近 N 列（依 date 欄降序）—— 首頁用，資料量大時也維持快速
+ * news 分頁 date 在 B 欄；其他分頁 date 在 A 欄。
+ *
+ * @param {string} sheetName
+ * @param {number} limit   抓最近幾列（預設 60，約涵蓋一週多）
+ * @param {string} dateColLetter  日期欄位字母（news='B'，studio/shary='A'）
+ */
+async function fetchSheetRecent(sheetName, limit, dateColLetter) {
+  limit = limit || 60;
+  const col = dateColLetter || 'B';
+  try {
+    return await fetchSheetQuery(sheetName, `select * order by ${col} desc limit ${limit}`);
+  } catch (e) {
+    // 查詢失敗時退回抓全部，確保不會因查詢問題而壞掉
+    console.warn(`fetchSheetRecent 查詢失敗，退回全量抓取：${e.message}`);
+    return fetchSheet(sheetName);
+  }
 }
 
 function parseGviz(json) {
