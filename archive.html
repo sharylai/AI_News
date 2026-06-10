@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>歷史封存｜AI News</title>
 
-  <link rel="stylesheet" href="assets/style.css?v=20260605o">
-  <script src="assets/common.js?v=20260605o"></script>
+  <link rel="stylesheet" href="assets/style.css?v=20260605p">
+  <script src="assets/common.js?v=20260605p"></script>
   <script defer src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
 </head>
 
@@ -156,10 +156,11 @@
         displayDateFor: displayDate,
 
         get topThree() {
-          return this.items
+          const flagged = this.items
             .filter(i => String(i.is_top).toLowerCase() === 'true' || i.is_top === true)
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 3);
+            .sort((a, b) => b.score - a.score);
+          if (flagged.length > 0) return flagged.slice(0, 3);
+          return this.items.slice().sort((a, b) => b.score - a.score).slice(0, 3);
         },
         get others() {
           const topIds = new Set(this.topThree.map(i => i.id));

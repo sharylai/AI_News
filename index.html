@@ -11,18 +11,18 @@
   <meta property="og:site_name" content="AI Video News" />
   <meta property="og:title" content="AI Video News｜每日 8 點 AI 影音趨勢雷達" />
   <meta property="og:description" content="每天 8 點，把全球 AI 影音情報轉化為立刻可用的創作靈感與商業行動。影音創客監製。" />
-  <meta property="og:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605o" />
+  <meta property="og:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605p" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:url" content="https://sharylai.github.io/AI_News/" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="AI Video News｜每日 8 點 AI 影音趨勢雷達" />
   <meta name="twitter:description" content="每天 8 點，把全球 AI 影音情報轉化為立刻可用的創作靈感與商業行動。" />
-  <meta name="twitter:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605o" />
+  <meta name="twitter:image" content="https://sharylai.github.io/AI_News/assets/og.png?v=20260605p" />
 
-  <link rel="stylesheet" href="assets/style.css?v=20260605o">
-  <script src="assets/common.js?v=20260605o"></script>
-  <script src="assets/quotes.js?v=20260605o"></script>
+  <link rel="stylesheet" href="assets/style.css?v=20260605p">
+  <script src="assets/common.js?v=20260605p"></script>
+  <script src="assets/quotes.js?v=20260605p"></script>
   <script defer src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js"></script>
 </head>
 
@@ -254,10 +254,12 @@
         get yesterdayDateStr() { return this.yesterdayDate ? displayDate(this.yesterdayDate) : ''; },
 
         get topThree() {
-          return this.items
+          // 優先取 is_top 標記者；若當天無（評分都未達 4.0），fallback 取評分最高前 3
+          const flagged = this.items
             .filter(i => String(i.is_top).toLowerCase() === 'true' || i.is_top === true)
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 3);
+            .sort((a, b) => b.score - a.score);
+          if (flagged.length > 0) return flagged.slice(0, 3);
+          return this.items.slice().sort((a, b) => b.score - a.score).slice(0, 3);
         },
         get restItems() {
           const topIds = new Set(this.topThree.map(i => i.id));
