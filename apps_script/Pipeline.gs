@@ -285,8 +285,11 @@ function rankAndFilter(enriched, recentHistory) {
       review.push(item);
       return false;
     }
-    if (CONFIG.VERIFY_SOURCE_DOMAIN && item.category === '工具' && !sourceMatchesCompany(item)) {
-      item._review_reason = `工具消息來源網域與公司「${item.company}」不符，疑似非官方`;
+    // 網域驗證只擋「低可信度(C/D)」的工具消息；A/B 級已由 Claude 判定為官方/主流媒體，信任其判斷照發，
+    // 避免媒體報導（來源網域非公司官網）被誤殺。仍保留防 Runway 假新聞（那是低可信度爆料）的效果。
+    if (CONFIG.VERIFY_SOURCE_DOMAIN && item.category === '工具'
+        && (cred === 'C' || cred === 'D') && !sourceMatchesCompany(item)) {
+      item._review_reason = `工具消息來源網域與公司「${item.company}」不符，且可信度僅 ${cred} 級`;
       review.push(item);
       return false;
     }

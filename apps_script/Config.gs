@@ -22,11 +22,13 @@ const CONFIG = {
   // ===== Claude API =====
   CLAUDE_API_URL: 'https://api.anthropic.com/v1/messages',
   CLAUDE_MODELS: {
-    HAIKU: 'claude-haiku-4-5',     // 批次初篩
-    SONNET: 'claude-sonnet-4-6',   // 主要分類、評分、摘要
-    OPUS: 'claude-opus-4-7'        // 最高品質（成本高）
+    HAIKU: 'claude-haiku-4-5',     // 批次初篩（Haiku 4.5，現行）
+    SONNET: 'claude-sonnet-5',     // 主要分類、評分、摘要（Sonnet 5，取代已退役的 4-6）
+    OPUS: 'claude-opus-4-8'        // 最高品質（Opus 4.8，取代已退役的 4-7）
   },
-  SHARY_MODEL: 'claude-sonnet-4-6',  // AI 新視野 用的模型（省錢設定：Sonnet；要最佳品質改 claude-opus-4-7）
+  SHARY_MODEL: 'claude-sonnet-5',    // AI 新視野 用的模型（省錢設定：Sonnet 5；要最佳品質改 claude-opus-4-8）
+  // 這些新版模型已棄用 temperature 參數，呼叫時不帶（帶了會回 400）
+  NO_TEMPERATURE_MODELS: ['claude-sonnet-5', 'claude-opus-5', 'claude-opus-4-8', 'claude-fable-5'],
   MAX_ENRICH_ITEMS: 8,               // 成本保險：每天最多送幾則給 Sonnet 評分（Haiku 篩完取前 N）
   CLAUDE_VERSION: '2023-06-01',
 
@@ -126,6 +128,7 @@ const CONFIG = {
   SOCIAL_MAX_ITEMS: 5,                           // 取前 N 則新聞生成貼文
 
   // ===== Email 通知 =====
+  STALE_ALERT_DAYS: 2,                           // 內容連續 N 天沒更新就寄警告信
   ENABLE_SOCIAL_EMAIL: true,                     // 是否把社群素材直接寄信
   SOCIAL_EMAIL_TO: 'sharylai@gmail.com',         // 收件人（可改）
   SOCIAL_EMAIL_FROM_NAME: 'AI News｜影音創客',   // 寄件人顯示名稱

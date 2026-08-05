@@ -18,7 +18,6 @@
 function callClaude(model, system, messages, options = {}) {
   const apiKey = getApiKey('ANTHROPIC_API_KEY');
   const maxTokens = options.maxTokens || 2000;
-  const temperature = options.temperature !== undefined ? options.temperature : 0.3;
 
   // System prompt 支援 cache control
   const systemBlock = options.useCache
@@ -28,10 +27,13 @@ function callClaude(model, system, messages, options = {}) {
   const payload = {
     model: model,
     max_tokens: maxTokens,
-    temperature: temperature,
     system: systemBlock,
     messages: messages
   };
+  // temperature：新版模型（Sonnet 5 等）已棄用此參數，只有明確傳入且模型支援時才帶
+  if (options.temperature !== undefined && !CONFIG.NO_TEMPERATURE_MODELS.includes(model)) {
+    payload.temperature = options.temperature;
+  }
 
   const resp = UrlFetchApp.fetch(CONFIG.CLAUDE_API_URL, {
     method: 'post',
@@ -145,8 +147,8 @@ function estimateCost(usage, model) {
   if (!usage) return 0;
   const RATES = {
     'claude-haiku-4-5':  { input: 1.0, output: 5.0 },     // USD per 1M tokens
-    'claude-sonnet-4-6': { input: 3.0, output: 15.0 },
-    'claude-opus-4-7':   { input: 15.0, output: 75.0 }
+    'claude-sonnet-5':   { input: 3.0, output: 15.0 },
+    'claude-opus-4-8':   { input: 15.0, output: 75.0 }
   };
   const rate = RATES[model] || { input: 0, output: 0 };
   return (

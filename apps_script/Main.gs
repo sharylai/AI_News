@@ -48,6 +48,7 @@ function runDailyPipeline() {
         cost: status.cost,
         error: ''
       });
+      alertIfStale();   // 連續多天無新內容 → 寄警告信
       return;
     }
 
@@ -66,6 +67,7 @@ function runDailyPipeline() {
         cost: status.cost,
         error: ''
       });
+      alertIfStale();   // 連續多天無新內容 → 寄警告信
       return;
     }
 
@@ -138,6 +140,50 @@ function runDailyPipeline() {
 }
 
 /**
+ * 內容陳舊警告：若 news 最新日期距今 ≥ STALE_ALERT_DAYS 天，寄警告信。
+ * 每天最多寄一次（用 Script Property 記錄上次寄信日）。
+ */
+function alertIfStale() {
+  try {
+    const gapDays = CONFIG.STALE_ALERT_DAYS || 2;
+    const sheet = SpreadsheetApp.openById(CONFIG.SHEET_ID).getSheetByName(CONFIG.SHEET_NAMES.NEWS);
+    const data = sheet.getDataRange().getValues();
+    const dateCol = NEWS_COLUMNS.indexOf('date');
+    let latest = '';
+    for (let i = 1; i < data.length; i++) {
+      const v = data[i][dateCol];
+      const s = v instanceof Date ? Utilities.formatDate(v, 'Asia/Taipei', 'yyyy-MM-dd') : String(v).slice(0, 10);
+      if (s > latest) latest = s;
+    }
+    const today = getTodayString();
+    const gap = Math.round((new Date(today) - new Date(latest)) / 86400000);
+    if (gap < gapDays) return;   // 還沒到警告門檻
+
+    // 每天最多寄一次
+    const props = PropertiesService.getScriptProperties();
+    if (props.getProperty('STALE_ALERT_SENT') === today) return;
+
+    const to = CONFIG.SOCIAL_EMAIL_TO || PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAIL');
+    if (to) {
+      MailApp.sendEmail({
+        to: to,
+        subject: `⚠️ [AI News] 內容已 ${gap} 天未更新，請檢查`,
+        body: `AI Video News 已連續 ${gap} 天沒有產出新內容（news 最新日期：${latest}）。\n\n`
+          + `常見原因：\n`
+          + `1. Anthropic API 額度用完 → 前往 console.anthropic.com/settings/billing 儲值\n`
+          + `2. 模型 API 規格變更 → 用 Web App 診斷入口 ?diag=1 檢查\n`
+          + `3. 抓取來源全部失效\n\n`
+          + `診斷：在 Apps Script 執行 testRunPipeline 看 console 錯誤。`
+      });
+      props.setProperty('STALE_ALERT_SENT', today);
+      console.warn(`已寄出內容陳舊警告信（gap ${gap} 天）`);
+    }
+  } catch (e) {
+    console.warn('alertIfStale 失敗:', e.message);
+  }
+}
+
+/**
  * Web App 入口（GitHub Actions 備援觸發器呼叫）
  *
  * 冪等設計：當天 news 已有資料就跳過，只在主觸發器失敗時補跑。
@@ -156,6 +202,35 @@ function doGet(e) {
   const got = e && e.parameter && e.parameter.token;
   if (!expected || got !== expected) {
     return out({ ok: false, error: 'unauthorized' });
+  }
+
+  // 1.5 診斷模式：?diag=1 跑一次「真實的評分呼叫」，回傳原始狀態/錯誤
+  if (e.parameter.diag) {
+    // (a) 帶 system prompt + prompt cache 的真實呼叫（模擬 filter/enrich）
+    const raw = {};
+    ['HAIKU', 'SONNET'].forEach(k => {
+      try {
+        const resp = UrlFetchApp.fetch(CONFIG.CLAUDE_API_URL, {
+          method: 'post', contentType: 'application/json',
+          headers: { 'x-api-key': getApiKey('ANTHROPIC_API_KEY'), 'anthropic-version': CONFIG.CLAUDE_VERSION },
+          payload: JSON.stringify({
+            model: CONFIG.CLAUDE_MODELS[k], max_tokens: 100, temperature: 0.3,
+            system: [{ type: 'text', text: '你是測試助手。', cache_control: { type: 'ephemeral' } }],
+            messages: [{ role: 'user', content: '請只回覆 JSON 陣列 [{"ok":true}]' }]
+          }),
+          muteHttpExceptions: true
+        });
+        raw[k] = { model: CONFIG.CLAUDE_MODELS[k], http: resp.getResponseCode(), body: resp.getContentText().slice(0, 400) };
+      } catch (err) { raw[k] = { model: CONFIG.CLAUDE_MODELS[k], error: err.message }; }
+    });
+    // (b) 走真實 callClaude 路徑（含 temperature 條件邏輯）測 Sonnet
+    let sonnetTest;
+    try {
+      const r = callClaude(CONFIG.CLAUDE_MODELS.SONNET, '你是測試助手。',
+        [{ role: 'user', content: '回覆 OK' }], { useCache: true, maxTokens: 50, temperature: 0.2 });
+      sonnetTest = { ok: true, text: r.text.slice(0, 100) };
+    } catch (err) { sonnetTest = { ok: false, error: err.message.slice(0, 300) }; }
+    return out({ ok: true, rawCall: raw, sonnetViaCallClaude: sonnetTest });
   }
 
   // 2. 冪等檢查：今天是否已有 news
